@@ -3,7 +3,40 @@
 
 #pragma once
 
+#include "SharedBufferAllocator.hpp"
+
 #include <Pothos/Framework.hpp>
+
+//
+// VOLKBlock
+//
+
+class VOLKBlock: public Pothos::Block
+{
+    public:
+        VOLKBlock(){}
+        virtual ~VOLKBlock() = default;
+
+        Pothos::BufferManager::Sptr getInputBufferManager(
+            const std::string&,
+            const std::string&) override
+        {
+            auto bufferManager = Pothos::BufferManager::make("generic");
+            bufferManager->setAllocateFunction(&volkSharedBufferAllocator);
+
+            return bufferManager;
+        }
+
+        Pothos::BufferManager::Sptr getOutputBufferManager(
+            const std::string&,
+            const std::string&) override
+        {
+            auto bufferManager = Pothos::BufferManager::make("generic");
+            bufferManager->setAllocateFunction(&volkSharedBufferAllocator);
+
+            return bufferManager;
+        }
+};
 
 //
 // OneToOneBlock
@@ -13,7 +46,7 @@ template <typename InType, typename OutType>
 using OneToOneFcn = void(*)(OutType*, const InType*, unsigned int);
 
 template <typename InType, typename OutType>
-class OneToOneBlock: public Pothos::Block
+class OneToOneBlock: public VOLKBlock
 {
     public:
         using Class = OneToOneBlock<InType, OutType>;
@@ -30,6 +63,8 @@ class OneToOneBlock: public Pothos::Block
             this->setupOutput(0, Pothos::DType(typeid(OutType)));
         }
 
+        virtual ~OneToOneBlock() = default;
+
         void work() override
         {
             const auto elems = this->workInfo().minElements;
@@ -44,7 +79,7 @@ class OneToOneBlock: public Pothos::Block
             output->produce(elems);
         }
 
-    private:
+    protected:
         Fcn _fcn;
 };
 
@@ -56,7 +91,7 @@ template <typename InType, typename OutType, typename ScalarType>
 using OneToOneScalarParamFcn = void(*)(OutType*, const InType*, const ScalarType, unsigned int);
 
 template <typename InType, typename OutType, typename ScalarType>
-class OneToOneScalarParamBlock: public Pothos::Block
+class OneToOneScalarParamBlock: public VOLKBlock
 {
     public:
         using Class = OneToOneScalarParamBlock<InType, OutType, ScalarType>;
@@ -75,6 +110,8 @@ class OneToOneScalarParamBlock: public Pothos::Block
             this->registerCall(this, POTHOS_FCN_TUPLE(Class, scalar));
             this->registerCall(this, POTHOS_FCN_TUPLE(Class, setScalar));
         }
+
+        virtual ~OneToOneScalarParamBlock() = default;
 
         ScalarType scalar() const
         {
@@ -100,7 +137,7 @@ class OneToOneScalarParamBlock: public Pothos::Block
             output->produce(elems);
         }
 
-    private:
+    protected:
         Fcn _fcn;
         ScalarType _scalar;
 };
@@ -113,7 +150,7 @@ template <typename InType0, typename InType1, typename OutType>
 using TwoToOneFcn = void(*)(OutType*, const InType0*, const InType1*, unsigned int);
 
 template <typename InType0, typename InType1, typename OutType>
-class TwoToOneBlock: public Pothos::Block
+class TwoToOneBlock: public VOLKBlock
 {
     public:
         using Class = TwoToOneBlock<InType0, InType1, OutType>;
@@ -131,6 +168,8 @@ class TwoToOneBlock: public Pothos::Block
             this->setupOutput(0, Pothos::DType(typeid(OutType)));
         }
 
+        virtual ~TwoToOneBlock() = default;
+
         void work() override
         {
             const auto elems = this->workInfo().minElements;
@@ -147,6 +186,6 @@ class TwoToOneBlock: public Pothos::Block
             output->produce(elems);
         }
 
-    private:
+    protected:
         Fcn _fcn;
 };
