@@ -1,0 +1,14 @@
+OneToOneBlocks:
+    - fcn: foo
+      blockName: foo
+      inType: foo
+      outType: foo
+      doc: foo
+
+OneToOneWithScalarParamBlocks:
+    - fcn: foo
+      blockName: foo
+      inType: foo
+      outType: foo
+      scalarType: foo
+      doc: foo
