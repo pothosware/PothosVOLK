@@ -18,10 +18,19 @@ static bool doesDTypeMatch(const Pothos::DType& dtype)
     return (Pothos::DType::fromDType(dtype, 1) == DTypeT);
 }
 
-class InvalidDTypesException: public Pothos::InvalidArgumentException
+class InvalidDTypeException: public Pothos::InvalidArgumentException
 {
     public:
-        InvalidDTypesException(
+        InvalidDTypeException(
+            const std::string& context,
+            const Pothos::DType& dtype
+        ):
+            Pothos::InvalidArgumentException(Poco::format(
+                "%s: %s",
+                context,
+                dtype.toString()))
+        {}
+        InvalidDTypeException(
             const std::string& context,
             const std::vector<Pothos::DType>& dtypes
         ):
@@ -31,5 +40,5 @@ class InvalidDTypesException: public Pothos::InvalidArgumentException
                 Pothos::Object(dtypes).toString()))
         {}
 
-        virtual ~InvalidDTypesException() = default;
+        virtual ~InvalidDTypeException() = default;
 };

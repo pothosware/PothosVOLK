@@ -31,6 +31,7 @@ include_directories(
 
 set(sources
     source/BlockFactories.cpp
+    source/Byteswap.cpp
     source/SharedBufferAllocator.cpp)
 
 include(PothosUtil)

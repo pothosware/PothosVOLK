@@ -4,11 +4,6 @@
 #include "Utility.hpp"
 #include "VOLKBlock.hpp"
 
-#include <Pothos/Exception.hpp>
-#include <Pothos/Object.hpp>
-
-#include <Poco/Format.h>
-
 #include <volk/volk.h>
 
 #include <complex>
@@ -38,7 +33,7 @@ static Pothos::Block* makeAdd(
     IfTypesThenTwoToOneBlock(double,double,double,volk_64f_x2_add_64f)
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_add_32fc)
 
-    throw InvalidDTypesException(VOLKAddPath, {inDType0, inDType1, outDType});
+    throw InvalidDTypeException(VOLKAddPath, {inDType0, inDType1, outDType});
 }
 
 static Pothos::BlockRegistry registerVOLKAdd(
@@ -81,7 +76,7 @@ static Pothos::Block* makeDivide(
     IfTypesThenTwoToOneBlock(float,float,float,volk_32f_x2_divide_32f)
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_divide_32fc)
 
-    throw InvalidDTypesException(VOLKDividePath, {inDType0, inDType1, outDType});
+    throw InvalidDTypeException(VOLKDividePath, {inDType0, inDType1, outDType});
 }
 
 static Pothos::BlockRegistry registerVOLKDivide(
@@ -143,7 +138,7 @@ static Pothos::Block* makeMin(const Pothos::DType& dtype)
     IfTypeThenTwoToOneBlock(float,volk_32f_x2_min_32f)
     IfTypeThenTwoToOneBlock(double,volk_64f_x2_min_64f)
 
-    throw InvalidDTypesException(VOLKMinPath, {dtype});
+    throw InvalidDTypeException(VOLKMinPath, {dtype});
 }
 
 static Pothos::BlockRegistry registerVOLKMin(
@@ -161,7 +156,7 @@ static Pothos::Block* makeMax(const Pothos::DType& dtype)
     IfTypeThenTwoToOneBlock(float,volk_32f_x2_max_32f)
     IfTypeThenTwoToOneBlock(double,volk_64f_x2_max_64f)
 
-    throw InvalidDTypesException(VOLKMaxPath, {dtype});
+    throw InvalidDTypeException(VOLKMaxPath, {dtype});
 }
 
 static Pothos::BlockRegistry registerVOLKMax(
@@ -185,7 +180,7 @@ static Pothos::Block* makeMultiply(
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_32fc)
     IfTypesThenTwoToOneBlock(std::complex<float>,float,std::complex<float>,volk_32fc_32f_multiply_32fc)
 
-    throw InvalidDTypesException(VOLKMultiplyPath, {inDType0, inDType1, outDType});
+    throw InvalidDTypeException(VOLKMultiplyPath, {inDType0, inDType1, outDType});
 }
 
 static Pothos::BlockRegistry registerVOLKMultiply(
@@ -196,7 +191,7 @@ static Pothos::BlockRegistry registerVOLKMultiply(
 // /volk/multiply
 //
 
-static const std::string VOLKMultiplyConjugatePath = "/volk/multiply";
+static const std::string VOLKMultiplyConjugatePath = "/volk/multiply_conjugate";
 
 static Pothos::Block* makeMultiplyConjugate(
     const Pothos::DType& inDType0,
@@ -206,7 +201,7 @@ static Pothos::Block* makeMultiplyConjugate(
     IfTypesThenTwoToOneBlock(std::complex<int8_t>,std::complex<int8_t>,std::complex<int16_t>,volk_8ic_x2_multiply_conjugate_16ic)
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_conjugate_32fc)
 
-    throw InvalidDTypesException(VOLKMultiplyConjugatePath, {inDType0, inDType1, outDType});
+    throw InvalidDTypeException(VOLKMultiplyConjugatePath, {inDType0, inDType1, outDType});
 }
 
 static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
