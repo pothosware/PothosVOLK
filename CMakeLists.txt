@@ -30,7 +30,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 set(sources
-    source/Module.cpp)
+    source/BlockFactories.cpp)
 
 include(PothosUtil)
 POTHOS_MODULE_UTIL(
