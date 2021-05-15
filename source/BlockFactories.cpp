@@ -38,6 +38,9 @@ class InvalidDTypesException: public Pothos::InvalidArgumentException
         virtual ~InvalidDTypesException() = default;
 };
 
+#define IfTypeThenTwoToOneBlock(Type,fcn) \
+    if(doesDTypeMatch<Type>(dtype)) return TwoToOneBlock<Type, Type, Type>::make(fcn);
+
 #define IfTypesThenTwoToOneBlock(InType0,InType1,OutType,fcn) \
     if(doesDTypeMatch<InType0>(dtypeIn0) && doesDTypeMatch<InType1>(dtypeIn1) && doesDTypeMatch<OutType>(dtypeOut)) \
         return TwoToOneBlock<InType0, InType1, OutType>::make(fcn);
@@ -66,6 +69,17 @@ static Pothos::BlockRegistry registerVOLKAdd(
     &makeAdd);
 
 //
+// /volk/conjugate
+//
+
+static const std::string VOLKConjugatePath = "/volk/conjugate";
+
+static Pothos::BlockRegistry registerVOLKConjugate(
+    VOLKConjugatePath,
+    Pothos::Callable(OneToOneBlock<std::complex<float>,std::complex<float>>::make)
+        .bind(volk_32fc_conjugate_32fc, 0));
+
+//
 // /volk/divide
 //
 
@@ -87,6 +101,50 @@ static Pothos::BlockRegistry registerVOLKDivide(
     &makeDivide);
 
 //
+// /volk/exp
+//
+
+static const std::string VOLKExpPath = "/volk/exp";
+
+static Pothos::BlockRegistry registerVOLKExp(
+    VOLKExpPath,
+    Pothos::Callable(OneToOneBlock<float,float>::make)
+        .bind(volk_32f_exp_32f, 0));
+
+//
+// /volk/expfast
+//
+
+static const std::string VOLKExpFastPath = "/volk/expfast";
+
+static Pothos::BlockRegistry registerVOLKexpfastFast(
+    VOLKExpFastPath,
+    Pothos::Callable(OneToOneBlock<float,float>::make)
+        .bind(volk_32f_expfast_32f, 0));
+
+//
+// /volk/invsqrt
+//
+
+static const std::string VOLKInvSqrtPath = "/volk/invsqrt";
+
+static Pothos::BlockRegistry registerVOLKInvSqrt(
+    VOLKInvSqrtPath,
+    Pothos::Callable(OneToOneBlock<float,float>::make)
+        .bind(volk_32f_invsqrt_32f, 0));
+
+//
+// /volk/log2
+//
+
+static const std::string VOLKLog2Path = "/volk/log2";
+
+static Pothos::BlockRegistry registerVOLKLog2(
+    VOLKLog2Path,
+    Pothos::Callable(OneToOneBlock<float,float>::make)
+        .bind(volk_32f_log2_32f, 0));
+
+//
 // /volk/min
 //
 
@@ -94,8 +152,8 @@ static const std::string VOLKMinPath = "/volk/min";
 
 static Pothos::Block* makeMin(const Pothos::DType& dtype)
 {
-    if(doesDTypeMatch<float>(dtype)) return TwoToOneBlock<float,float,float>::make(volk_32f_x2_min_32f);
-    if(doesDTypeMatch<double>(dtype)) return TwoToOneBlock<double,double,double>::make(volk_64f_x2_min_64f);
+    IfTypeThenTwoToOneBlock(float,volk_32f_x2_min_32f)
+    IfTypeThenTwoToOneBlock(double,volk_64f_x2_min_64f)
 
     throw InvalidDTypesException(VOLKMinPath, {dtype});
 }

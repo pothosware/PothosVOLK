@@ -73,7 +73,10 @@ class OneToOneBlock: public VOLKBlock
             auto input = this->input(0);
             auto output = this->output(0);
 
-            _fcn(output->buffer(), input->buffer(), static_cast<unsigned int>(elems));
+            _fcn(
+                (OutType*)output->buffer(),
+                (const InType*)input->buffer(),
+                static_cast<unsigned int>(elems));
 
             input->consume(elems);
             output->produce(elems);
@@ -131,7 +134,11 @@ class OneToOneScalarParamBlock: public VOLKBlock
             auto input = this->input(0);
             auto output = this->output(0);
 
-            _fcn(output->buffer(), input->buffer(), _scalar, static_cast<unsigned int>(elems));
+            _fcn(
+                (OutType*)output->buffer(),
+                (const InType*)input->buffer(),
+                _scalar,
+                static_cast<unsigned int>(elems));
 
             input->consume(elems);
             output->produce(elems);
@@ -179,7 +186,11 @@ class TwoToOneBlock: public VOLKBlock
             auto input1 = this->input(1);
             auto output = this->output(0);
 
-            _fcn(output->buffer(), input0->buffer(), input1->buffer(), static_cast<unsigned int>(elems));
+            _fcn(
+                (OutType*)output->buffer(),
+                (const InType0*)input0->buffer(),
+                (const InType1*)input1->buffer(),
+                static_cast<unsigned int>(elems));
 
             input0->consume(elems);
             input1->consume(elems);
