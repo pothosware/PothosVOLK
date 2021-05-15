@@ -1,6 +1,7 @@
 // Copyright 2021 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include "Utility.hpp"
 #include "VOLKBlock.hpp"
 
 #include <Pothos/Exception.hpp>
@@ -13,34 +14,6 @@
 #include <complex>
 #include <string>
 #include <vector>
-
-//
-// Utility
-//
-
-template <typename T>
-static bool doesDTypeMatch(const Pothos::DType& dtype)
-{
-    static const auto DTypeT = Pothos::DType(typeid(T));
-
-    return (Pothos::DType::fromDType(dtype, 1) == DTypeT);
-}
-
-class InvalidDTypesException: public Pothos::InvalidArgumentException
-{
-    public:
-        InvalidDTypesException(
-            const std::string& context,
-            const std::vector<Pothos::DType>& dtypes
-        ):
-            Pothos::InvalidArgumentException(Poco::format(
-                "%s: %s",
-                context,
-                Pothos::Object(dtypes).toString()))
-        {}
-
-        virtual ~InvalidDTypesException() = default;
-};
 
 #define IfTypeThenTwoToOneBlock(Type,fcn) \
     if(doesDTypeMatch<Type>(dtype)) return TwoToOneBlock<Type, Type, Type>::make(fcn);

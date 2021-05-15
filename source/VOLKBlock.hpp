@@ -116,12 +116,12 @@ class OneToOneScalarParamBlock: public VOLKBlock
 
         virtual ~OneToOneScalarParamBlock() = default;
 
-        ScalarType scalar() const
+        virtual ScalarType scalar() const
         {
             return _scalar;
         }
 
-        void setScalar(ScalarType scalar)
+        virtual void setScalar(ScalarType scalar)
         {
             _scalar = scalar;
         }
