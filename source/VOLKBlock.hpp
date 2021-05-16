@@ -59,8 +59,11 @@ class OneToOneBlock: public VOLKBlock
 
         OneToOneBlock(Fcn fcn): _fcn(fcn)
         {
-            this->setupInput(0, Pothos::DType(typeid(InType)));
-            this->setupOutput(0, Pothos::DType(typeid(OutType)));
+            static const Pothos::DType InDType(typeid(InType));
+            static const Pothos::DType OutDType(typeid(OutType));
+
+            this->setupInput(0, InDType);
+            this->setupOutput(0, OutDType);
         }
 
         virtual ~OneToOneBlock() = default;
@@ -73,10 +76,9 @@ class OneToOneBlock: public VOLKBlock
             auto input = this->input(0);
             auto output = this->output(0);
 
-            _fcn(
-                (OutType*)output->buffer(),
-                (const InType*)input->buffer(),
-                static_cast<unsigned int>(elems));
+            _fcn(output->buffer().template as<OutType*>(),
+                 input->buffer().template as<const InType*>(),
+                 static_cast<unsigned int>(elems));
 
             input->consume(elems);
             output->produce(elems);
@@ -107,8 +109,11 @@ class OneToOneScalarParamBlock: public VOLKBlock
 
         OneToOneScalarParamBlock(Fcn fcn): _fcn(fcn)
         {
-            this->setupInput(0, Pothos::DType(typeid(InType)));
-            this->setupOutput(0, Pothos::DType(typeid(OutType)));
+            static const Pothos::DType InDType(typeid(InType));
+            static const Pothos::DType OutDType(typeid(OutType));
+
+            this->setupInput(0, InDType);
+            this->setupOutput(0, OutDType);
 
             this->registerCall(this, POTHOS_FCN_TUPLE(Class, scalar));
             this->registerCall(this, POTHOS_FCN_TUPLE(Class, setScalar));
@@ -134,11 +139,10 @@ class OneToOneScalarParamBlock: public VOLKBlock
             auto input = this->input(0);
             auto output = this->output(0);
 
-            _fcn(
-                (OutType*)output->buffer(),
-                (const InType*)input->buffer(),
-                _scalar,
-                static_cast<unsigned int>(elems));
+            _fcn(output->buffer().template as<OutType*>(),
+                 input->buffer().template as<const InType*>(),
+                 _scalar,
+                 static_cast<unsigned int>(elems));
 
             input->consume(elems);
             output->produce(elems);
@@ -147,6 +151,61 @@ class OneToOneScalarParamBlock: public VOLKBlock
     protected:
         Fcn _fcn;
         ScalarType _scalar;
+};
+
+//
+// OneToTwoBlock
+//
+
+template <typename InType, typename OutType0, typename OutType1>
+using OneToTwoFcn = void(*)(OutType0*, OutType1*, const InType*, unsigned int);
+
+template <typename InType, typename OutType0, typename OutType1>
+class OneToTwoBlock: public VOLKBlock
+{
+    public:
+        using Class = OneToTwoBlock<InType, OutType0, OutType1>;
+        using Fcn = OneToTwoFcn<InType, OutType0, OutType1>;
+
+        static Pothos::Block* make(Fcn fcn)
+        {
+            return new Class(fcn);
+        }
+
+        OneToTwoBlock(Fcn fcn): _fcn(fcn)
+        {
+            static const Pothos::DType InDType(typeid(InType));
+            static const Pothos::DType OutDType0(typeid(OutType0));
+            static const Pothos::DType OutDType1(typeid(OutType1));
+
+            this->setupInput(0, InDType);
+            this->setupOutput(0, OutDType0);
+            this->setupOutput(1, OutDType1);
+        }
+
+        virtual ~OneToTwoBlock() = default;
+
+        void work() override
+        {
+            const auto elems = this->workInfo().minElements;
+            if(0 == elems) return;
+
+            auto input = this->input(0);
+            auto output0 = this->output(0);
+            auto output1 = this->output(0);
+
+            _fcn(output0->buffer().template as<OutType0*>(),
+                 output1->buffer().template as<OutType1*>(),
+                 input->buffer().template as<const InType*>(),
+                 static_cast<unsigned int>(elems));
+
+            input->consume(elems);
+            output0->produce(elems);
+            output1->produce(elems);
+        }
+
+    protected:
+        Fcn _fcn;
 };
 
 //
@@ -170,9 +229,13 @@ class TwoToOneBlock: public VOLKBlock
 
         TwoToOneBlock(Fcn fcn): _fcn(fcn)
         {
-            this->setupInput(0, Pothos::DType(typeid(InType0)));
-            this->setupInput(1, Pothos::DType(typeid(InType1)));
-            this->setupOutput(0, Pothos::DType(typeid(OutType)));
+            static const Pothos::DType InDType0(typeid(InType0));
+            static const Pothos::DType InDType1(typeid(InType1));
+            static const Pothos::DType OutDType(typeid(OutType));
+
+            this->setupInput(0, InDType0);
+            this->setupInput(1, InDType1);
+            this->setupOutput(0, OutDType);
         }
 
         virtual ~TwoToOneBlock() = default;
@@ -186,11 +249,10 @@ class TwoToOneBlock: public VOLKBlock
             auto input1 = this->input(1);
             auto output = this->output(0);
 
-            _fcn(
-                (OutType*)output->buffer(),
-                (const InType0*)input0->buffer(),
-                (const InType1*)input1->buffer(),
-                static_cast<unsigned int>(elems));
+            _fcn(output->buffer().template as<OutType*>(),
+                 input0->buffer().template as<const InType0*>(),
+                 input1->buffer().template as<const InType1*>(),
+                 static_cast<unsigned int>(elems));
 
             input0->consume(elems);
             input1->consume(elems);
