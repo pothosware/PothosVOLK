@@ -32,7 +32,8 @@ include_directories(
 set(sources
     source/BlockFactories.cpp
     source/Byteswap.cpp
-    source/SharedBufferAllocator.cpp)
+    source/SharedBufferAllocator.cpp
+    tests/BlockTests.cpp)
 
 include(PothosUtil)
 POTHOS_MODULE_UTIL(
