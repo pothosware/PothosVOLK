@@ -32,6 +32,7 @@ include_directories(
 set(sources
     source/BlockFactories.cpp
     source/Byteswap.cpp
+    source/Module.cpp
     source/SharedBufferAllocator.cpp
     tests/BlockTests.cpp)
 
