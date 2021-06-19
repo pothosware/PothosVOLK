@@ -33,7 +33,17 @@ namespace VOLKTests
     }
 
     template <typename T>
-    DisableIfComplex<T, void> testBufferChunks(
+    EnableIfIntegral<T, void> testBufferChunks(
+        const Pothos::BufferChunk& expected,
+        const Pothos::BufferChunk& actual)
+    {
+        testBufferChunksEqual<T>(
+            expected,
+            actual);
+    }
+
+    template <typename T>
+    DisableIfIntegral<T, void> testBufferChunks(
         const Pothos::BufferChunk& expected,
         const Pothos::BufferChunk& actual)
     {

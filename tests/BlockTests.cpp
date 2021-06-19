@@ -7,8 +7,11 @@
 #include <Pothos/Framework.hpp>
 #include <Pothos/Testing.hpp>
 
+#include <algorithm>
 #include <cmath>
+#include <complex>
 #include <iostream>
+#include <limits>
 #include <type_traits>
 
 //
@@ -136,4 +139,122 @@ POTHOS_TEST_BLOCK("/volk/tests", test_and)
         testInputs0,
         testInputs1,
         expectedOutputs);
+}
+
+//
+// /volk/binary_slicer
+//
+
+template <typename OutputType>
+static void testBinarySlicer()
+{
+    const auto outputDType = Pothos::DType(typeid(OutputType));
+
+    std::cout << " * Testing float32 -> " << outputDType.name()
+              << "..." << std::endl;
+
+    std::vector<float> inputs               = {-10.0f, -5.0f, 0.0f, 5.0f, 10.0f};
+    std::vector<OutputType> expectedOutputs = {0, 0, 1, 1, 1};
+
+    auto binarySlicerBlock = Pothos::BlockRegistry::make(
+        "/volk/binary_slicer",
+        "float32",
+        outputDType);
+
+    VOLKTests::testOneToOneBlock<float,OutputType>(
+        binarySlicerBlock,
+        inputs,
+        expectedOutputs);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_binary_slicer)
+{
+    testBinarySlicer<int8_t>();
+    testBinarySlicer<int32_t>();
+}
+
+//
+// /volk/byteswap
+//
+
+template <typename T>
+static void testByteswap(
+    const std::vector<T>& inputs,
+    const std::vector<T>& expectedOutputs)
+{
+    const auto dtype = Pothos::DType(typeid(T));
+
+    auto byteswapBlock = Pothos::BlockRegistry::make(
+        "/volk/byteswap",
+        dtype);
+
+    VOLKTests::testOneToOneBlock<T,T>(
+        byteswapBlock,
+        inputs,
+        expectedOutputs);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_byteswap)
+{
+    testByteswap<uint16_t>(
+        {0x0102,0x0304,0x0506},
+        {0x0201,0x0403,0x0605});
+    testByteswap<uint32_t>(
+        {0x01020304,0x03040506,0x05060708},
+        {0x04030201,0x06050403,0x08070605});
+    testByteswap<uint64_t>(
+        {0x0102030405060708,0x030405060708090A,0x05060708090A0B0C},
+        {0x0807060504030201,0x0A09080706050403,0x0C0B0A0908070605});
+}
+
+//
+// /volk/conjugate
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_conjugate)
+{
+    auto conjugateBlock = Pothos::BlockRegistry::make("/volk/conjugate");
+
+    VOLKTests::testOneToOneBlock<std::complex<float>,std::complex<float>>(
+        conjugateBlock,
+        {{0.0f,1.0f},{2.0f,3.0f},{4.0f,5.0f}},
+        {{0.0f,-1.0f},{2.0f,-3.0f},{4.0f,-5.0f}});
+}
+
+//
+// /volk/convert
+//
+
+template <typename InType, typename OutType>
+static void testConvert(
+    const std::vector<InType>& inputs,
+    const std::vector<OutType>& expectedOutputs)
+{
+    const Pothos::DType inDType(typeid(InType));
+    const Pothos::DType outDType(typeid(OutType));
+
+    std::cout << " * Testing " << inDType.name()
+              << " -> " << outDType.name()
+              << "..." << std::endl;
+
+    auto convertBlock = Pothos::BlockRegistry::make(
+        "/volk/convert",
+        inDType,
+        outDType);
+
+    VOLKTests::testOneToOneBlock<InType,OutType>(
+        convertBlock,
+        inputs,
+        expectedOutputs);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_convert)
+{
+    testConvert<int8_t,int16_t>(
+        {0, 1, 2, 3, 4, 5, 127},
+        {0, 256, 512, 768, 1024, 1280, 32512});
+
+    testConvert<int16_t,int8_t>(
+        {0, 256, 512, 768, 1024, 1280, 32512},
+        {0, 1, 2, 3, 4, 5, 127});
 }

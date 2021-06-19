@@ -20,6 +20,12 @@ namespace VOLKTests
     struct IsComplex<std::complex<T>> : std::true_type {};
 
     template <typename T, typename Ret>
+    using EnableIfIntegral = typename std::enable_if<std::is_integral<T>::value && !IsComplex<T>::value, Ret>::type;
+
+    template <typename T, typename Ret>
+    using DisableIfIntegral = typename std::enable_if<!std::is_integral<T>::value && !IsComplex<T>::value, Ret>::type;
+
+    template <typename T, typename Ret>
     using EnableIfComplex = typename std::enable_if<IsComplex<T>::value, Ret>::type;
 
     template <typename T, typename Ret>
