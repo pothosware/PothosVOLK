@@ -36,7 +36,7 @@ class Byteswap: public VOLKBlock
             auto output = this->output(0);
 
             std::memcpy(output->buffer(), input->buffer(), elems * sizeof(T));
-            _byteswapFcn(output->buffer().as<T*>(), static_cast<unsigned int>(elems));
+            _byteswapFcn(output->buffer().template as<T*>(), static_cast<unsigned int>(elems));
 
             input->consume(elems);
             output->produce(elems);
