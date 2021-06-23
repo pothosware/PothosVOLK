@@ -21,7 +21,7 @@
 POTHOS_TEST_BLOCK("/volk/tests", test_acos)
 {
     std::vector<float> testInputs      = {0.0f, 0.5f, 1.0f};
-    std::vector<float> expectedOutputs = {M_PI/2.0f, M_PI/3.0f, 0.0f};
+    std::vector<float> expectedOutputs = {M_PI_2, M_PI/3.0f, 0.0f};
 
     auto acos = Pothos::BlockRegistry::make("/volk/acos");
 
@@ -38,7 +38,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_acos)
 POTHOS_TEST_BLOCK("/volk/tests", test_asin)
 {
     std::vector<float> testInputs      = {0.0f, 0.5f, 1.0f};
-    std::vector<float> expectedOutputs = {0.0f, M_PI/6.0f, M_PI/2.0f};
+    std::vector<float> expectedOutputs = {0.0f, M_PI/6.0f, M_PI_2};
 
     auto asin = Pothos::BlockRegistry::make("/volk/asin");
 
@@ -55,7 +55,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_asin)
 POTHOS_TEST_BLOCK("/volk/tests", test_atan)
 {
     std::vector<float> testInputs      = {0.0f, 1.0f, INFINITY};
-    std::vector<float> expectedOutputs = {0.0f, M_PI/4.0f, M_PI/2.0f};
+    std::vector<float> expectedOutputs = {0.0f, M_PI/4.0f, M_PI_2};
 
     auto atan = Pothos::BlockRegistry::make("/volk/atan");
 
@@ -269,7 +269,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_cos)
 
     VOLKTests::testOneToOneBlock<float,float>(
         cosBlock,
-        {0.0f, (M_PI / 2.0f), M_PI},
+        {0.0f, M_PI_2, M_PI},
         {1.0f, 0.0f, -1.0f});
 }
 
