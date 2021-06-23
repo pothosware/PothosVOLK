@@ -439,24 +439,18 @@ POTHOS_TEST_BLOCK("/volk/tests", test_divide)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_exp)
 {
-    auto expBlock = Pothos::BlockRegistry::make("/volk/exp");
+    std::cout << "Testing PRECISE mode..." << std::endl;
 
     VOLKTests::testOneToOneBlock<float,float>(
-        expBlock,
+        Pothos::BlockRegistry::make("/volk/exp", "PRECISE"),
         {0.0f, 1.0f},
         {1.0f, M_E});
-}
 
-//
-// /volk/expfast
-//
-
-POTHOS_TEST_BLOCK("/volk/tests", test_expfast)
-{
-    auto expFastBlock = Pothos::BlockRegistry::make("/volk/expfast");
+    std::cout << "Testing FAST mode..." << std::endl;
 
     VOLKTests::testOneToOneBlock<float,float>(
-        expFastBlock,
+        Pothos::BlockRegistry::make("/volk/exp", "FAST"),
         {0.0f, 1.0f},
-        {1.0f, M_E});
+        {1.0f, M_E},
+        true);
 }

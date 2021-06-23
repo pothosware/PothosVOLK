@@ -15,28 +15,30 @@ namespace VOLKTests
     static constexpr size_t NumRepetitions = 256;
 
     template <typename T>
-    static constexpr T epsilon()
+    static constexpr T epsilon(bool)
     {
         return T(0);
     }
 
     template <>
-    constexpr float epsilon<float>()
+    constexpr float epsilon<float>(bool lax)
     {
-        return 1e-3f;
+        return lax ? 0.5f : 1e-3f;
     }
 
     template <>
-    constexpr double epsilon<double>()
+    constexpr double epsilon<double>(bool lax)
     {
-        return 1e-3;
+        return lax ? 0.5 : 1e-3;
     }
 
     template <typename T>
     EnableIfIntegral<T, void> testBufferChunks(
         const Pothos::BufferChunk& expected,
-        const Pothos::BufferChunk& actual)
+        const Pothos::BufferChunk& actual,
+        bool lax = false)
     {
+        (void)lax;
         testBufferChunksEqual<T>(
             expected,
             actual);
@@ -45,18 +47,20 @@ namespace VOLKTests
     template <typename T>
     DisableIfIntegral<T, void> testBufferChunks(
         const Pothos::BufferChunk& expected,
-        const Pothos::BufferChunk& actual)
+        const Pothos::BufferChunk& actual,
+        bool lax = false)
     {
         testBufferChunksClose<T>(
             expected,
             actual,
-            epsilon<T>());
+            epsilon<T>(lax));
     }
 
     template <typename T>
     EnableIfComplex<T, void> testBufferChunks(
         const Pothos::BufferChunk& expected,
-        const Pothos::BufferChunk& actual)
+        const Pothos::BufferChunk& actual,
+        bool lax = false)
     {
         using ScalarType = typename T::value_type;
         static const Pothos::DType dtype(typeid(ScalarType));
@@ -69,14 +73,16 @@ namespace VOLKTests
 
         testBufferChunks<ScalarType>(
             expectedScalar,
-            actualScalar);
+            actualScalar,
+            lax);
     }
 
     template <typename InType, typename OutType>
     void testOneToOneBlock(
         const Pothos::Proxy& testBlock,
         const std::vector<InType>& testInputsVec,
-        const std::vector<OutType>& expectedOutputsVec)
+        const std::vector<OutType>& expectedOutputsVec,
+        bool lax = false)
     {
         static const Pothos::DType InDType(typeid(InType));
         static const Pothos::DType OutDType(typeid(OutType));
@@ -105,7 +111,8 @@ namespace VOLKTests
         auto outputs = sink.call<Pothos::BufferChunk>("getBuffer");
         testBufferChunks<OutType>(
             expectedOutputs,
-            outputs);
+            outputs,
+            lax);
     }
 
     template <typename InType, typename OutType0, typename OutType1>

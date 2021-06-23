@@ -6,6 +6,7 @@
 
 #include <volk/volk.h>
 
+#include <cassert>
 #include <complex>
 #include <string>
 #include <vector>
@@ -244,21 +245,22 @@ static Pothos::BlockRegistry registerVOLKDivide(
 
 static const std::string VOLKExpPath = "/volk/exp";
 
+static Pothos::Block* makeExp(const std::string& mode)
+{
+    OneToOneFcn<float,float> volkFcn = nullptr;
+
+    if(mode == "PRECISE")   volkFcn = ::volk_32f_exp_32f;
+    else if(mode == "FAST") volkFcn = ::volk_32f_expfast_32f;
+    else throw Pothos::InvalidArgumentException(VOLKExpPath + " mode: " + mode);
+
+    assert(volkFcn);
+
+    return OneToOneBlock<float,float>::make(volkFcn);
+}
+
 static Pothos::BlockRegistry registerVOLKExp(
     VOLKExpPath,
-    Pothos::Callable(OneToOneBlock<float,float>::make)
-        .bind(volk_32f_exp_32f, 0));
-
-//
-// /volk/expfast
-//
-
-static const std::string VOLKExpFastPath = "/volk/expfast";
-
-static Pothos::BlockRegistry registerVOLKExpFast(
-    VOLKExpFastPath,
-    Pothos::Callable(OneToOneBlock<float,float>::make)
-        .bind(volk_32f_expfast_32f, 0));
+    makeExp);
 
 //
 // /volk/interleave
