@@ -258,3 +258,205 @@ POTHOS_TEST_BLOCK("/volk/tests", test_convert)
         {0, 256, 512, 768, 1024, 1280, 32512},
         {0, 1, 2, 3, 4, 5, 127});
 }
+
+//
+// /volk/cos
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_cos)
+{
+    auto cosBlock = Pothos::BlockRegistry::make("/volk/cos");
+
+    VOLKTests::testOneToOneBlock<float,float>(
+        cosBlock,
+        {0.0f, (M_PI / 2.0f), M_PI},
+        {1.0f, 0.0f, -1.0f});
+}
+
+//
+// /volk/deinterleave
+//
+
+template <typename InType, typename OutType>
+static void testDeinterleave(
+    const std::vector<InType>& inputs,
+    const std::vector<OutType>& expectedOutputs0,
+    const std::vector<OutType>& expectedOutputs1)
+{
+    const Pothos::DType inDType(typeid(InType));
+    const Pothos::DType outDType(typeid(OutType));
+
+    std::cout << " * Testing " << inDType.name()
+              << " -> " << outDType.name()
+              << "..." << std::endl;
+
+    auto deinterleaveBlock = Pothos::BlockRegistry::make(
+        "/volk/deinterleave",
+        inDType,
+        outDType);
+
+    VOLKTests::testOneToTwoBlock<InType,OutType>(
+        deinterleaveBlock,
+        inputs,
+        expectedOutputs0,
+        expectedOutputs1);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_deinterleave)
+{
+    testDeinterleave<std::complex<int8_t>,int16_t>(
+        {{-4,-3}, {-2,-1}, {0,1}, {2,3}, {4,5}},
+        {-1024,   -512,    0,     512,   1024},
+        {-768,    -256,    256,   768,   1280});
+
+    testDeinterleave<std::complex<int16_t>,int16_t>(
+        {{-10000,-1000}, {-100,-10}, {10,100}, {1000,10000}},
+        {-10000,         -100,       10,       1000},
+        {-1000,          -10,        100,      10000});
+
+    testDeinterleave<std::complex<float>,float>(
+        {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}},
+        {-2.5f,         -0.5f,        1.5f},
+        {-1.5f,         0.5f,         2.5f});
+
+    testDeinterleave<std::complex<float>,double>(
+        {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}},
+        {-2.5,          -0.5,         1.5},
+        {-1.5,          0.5,          2.5});
+}
+
+//
+// /volk/deinterleave_imag
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_deinterleave_imag)
+{
+    auto deinterleaveImagBlock = Pothos::BlockRegistry::make("/volk/deinterleave_imag");
+
+    VOLKTests::testOneToOneBlock<std::complex<float>,float>(
+        deinterleaveImagBlock,
+        {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}},
+        {-1.5f,         0.5f,         2.5f});
+}
+
+//
+// /volk/deinterleave_real
+//
+
+template <typename InType, typename OutType>
+static void testDeinterleaveReal(
+    const std::vector<InType>& inputs,
+    const std::vector<OutType>& expectedOutputs)
+{
+    const Pothos::DType inDType(typeid(InType));
+    const Pothos::DType outDType(typeid(OutType));
+
+    std::cout << " * Testing " << inDType.name()
+              << " -> " << outDType.name()
+              << "..." << std::endl;
+
+    auto deinterleaveBlock = Pothos::BlockRegistry::make(
+        "/volk/deinterleave_real",
+        inDType,
+        outDType);
+
+    VOLKTests::testOneToOneBlock<InType,OutType>(
+        deinterleaveBlock,
+        inputs,
+        expectedOutputs);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_deinterleave_real)
+{
+    testDeinterleaveReal<std::complex<int8_t>,int8_t>(
+        {{-4,-3}, {-2,-1}, {0,1}, {2,3}, {4,5}},
+        {-4,      -2,      0,     2,     4});
+
+    testDeinterleaveReal<std::complex<int8_t>,int16_t>(
+        {{-4,-3}, {-2,-1}, {0,1}, {2,3}, {4,5}},
+        {-512,    -256,    0,     256,   512});
+
+    testDeinterleaveReal<std::complex<int16_t>,int8_t>(
+        {{16384,-8192}, {-4096,2048}, {1024,-512}, {-256,128}},
+        {64,            -16,          4,           -1});
+
+    testDeinterleaveReal<std::complex<int16_t>,int16_t>(
+        {{-10000,-1000}, {-100,-10}, {10,100}, {1000,10000}},
+        {-10000,         -100,       10,       1000});
+
+    testDeinterleaveReal<std::complex<float>,float>(
+        {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}},
+        {-2.5f,         -0.5f,        1.5f});
+
+    testDeinterleaveReal<std::complex<float>,double>(
+        {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}},
+        {-2.5,          -0.5,         1.5});
+}
+
+//
+// /volk/divide
+//
+
+template <typename T>
+static void testDivide(
+    const std::vector<T>& inputs0,
+    const std::vector<T>& inputs1,
+    const std::vector<T>& expectedOutputs)
+{
+    const Pothos::DType dtype(typeid(T));
+
+    std::cout << "Testing " << dtype.name() << "..." << std::endl;
+
+    auto divideBlock = Pothos::BlockRegistry::make(
+        "/volk/divide",
+        dtype,
+        dtype,
+        dtype);
+
+    VOLKTests::testTwoToOneBlock<T,T,T>(
+        divideBlock,
+        inputs0,
+        inputs1,
+        expectedOutputs);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_divide)
+{
+    testDivide<float>(
+        {-3.0f, -2.0f,  -1.0f,  1.0f,    2.0f, 3.0f},
+        {0.5f,  -0.25f, 0.125f, -8.0f,   4.0f, -2.0f},
+        {-6.0f, 8.0f,   -8.0f,  -0.125f, 0.5f, -1.5f});
+
+    testDivide<std::complex<float>>(
+        {{-3.0f,-2.0f},  {-1.0f,1.0f},          {2.0f,3.0f}},
+        {{0.5f,-0.25f},  {0.125f,-8.0f},        {4.0f,-2.0f}},
+        {{-3.2f,-5.6f},  {-0.12692f,-0.12301f}, {0.1f,0.8f}});
+}
+
+//
+// /volk/exp
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_exp)
+{
+    auto expBlock = Pothos::BlockRegistry::make("/volk/exp");
+
+    VOLKTests::testOneToOneBlock<float,float>(
+        expBlock,
+        {0.0f, 1.0f},
+        {1.0f, M_E});
+}
+
+//
+// /volk/expfast
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_expfast)
+{
+    auto expFastBlock = Pothos::BlockRegistry::make("/volk/expfast");
+
+    VOLKTests::testOneToOneBlock<float,float>(
+        expFastBlock,
+        {0.0f, 1.0f},
+        {1.0f, M_E});
+}

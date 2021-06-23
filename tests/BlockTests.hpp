@@ -108,6 +108,54 @@ namespace VOLKTests
             outputs);
     }
 
+    template <typename InType, typename OutType0, typename OutType1>
+    void testOneToTwoBlock(
+        const Pothos::Proxy& testBlock,
+        const std::vector<InType>& testInputsVec,
+        const std::vector<OutType0>& expectedOutputs0Vec,
+        const std::vector<OutType1>& expectedOutputs1Vec)
+    {
+        static const Pothos::DType InDType(typeid(InType));
+        static const Pothos::DType OutDType0(typeid(OutType0));
+        static const Pothos::DType OutDType1(typeid(OutType1));
+
+        const auto testInputs = VOLKTests::stdVectorToStretchedBufferChunk(
+            testInputsVec,
+            NumRepetitions);
+        const auto expectedOutputs0 = VOLKTests::stdVectorToStretchedBufferChunk(
+            expectedOutputs0Vec,
+            NumRepetitions);
+        const auto expectedOutputs1 = VOLKTests::stdVectorToStretchedBufferChunk(
+            expectedOutputs1Vec,
+            NumRepetitions);
+
+        auto source = Pothos::BlockRegistry::make("/blocks/feeder_source", InDType);
+        source.call("feedBuffer", testInputs);
+
+        auto sink0 = Pothos::BlockRegistry::make("/blocks/collector_sink", OutDType0);
+        auto sink1 = Pothos::BlockRegistry::make("/blocks/collector_sink", OutDType1);
+
+        {
+            Pothos::Topology topology;
+            topology.connect(source, 0, testBlock, 0);
+            topology.connect(testBlock, 0, sink0, 0);
+            topology.connect(testBlock, 1, sink1, 0);
+
+            topology.commit();
+            POTHOS_TEST_TRUE(topology.waitInactive(0.01));
+        }
+
+        auto outputs0 = sink0.call<Pothos::BufferChunk>("getBuffer");
+        testBufferChunks<OutType0>(
+            expectedOutputs0,
+            outputs0);
+
+        auto outputs1 = sink1.call<Pothos::BufferChunk>("getBuffer");
+        testBufferChunks<OutType1>(
+            expectedOutputs1,
+            outputs1);
+    }
+
     template <typename InType0, typename InType1, typename OutType>
     void testTwoToOneBlock(
         const Pothos::Proxy& testBlock,

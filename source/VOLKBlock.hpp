@@ -192,7 +192,7 @@ class OneToTwoBlock: public VOLKBlock
 
             auto input = this->input(0);
             auto output0 = this->output(0);
-            auto output1 = this->output(0);
+            auto output1 = this->output(1);
 
             _fcn(output0->buffer().template as<OutType0*>(),
                  output1->buffer().template as<OutType1*>(),

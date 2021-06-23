@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#warning TODO: versions with scalar params
+
 #define IfTypesThenOneToOneBlock(InType,OutType,fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToOneBlock<InType, OutType>::make(fcn);
@@ -302,7 +304,7 @@ static Pothos::Block* makeMax(const Pothos::DType& dtype)
     IfTypeThenTwoToOneBlock(float,volk_32f_x2_max_32f)
     IfTypeThenTwoToOneBlock(double,volk_64f_x2_max_64f)
 
-    throw InvalidDTypeException(VOLKMaxPath, {dtype});
+    throw InvalidDTypeException(VOLKMaxPath, dtype);
 }
 
 static Pothos::BlockRegistry registerVOLKMax(
@@ -320,7 +322,7 @@ static Pothos::Block* makeMin(const Pothos::DType& dtype)
     IfTypeThenTwoToOneBlock(float,volk_32f_x2_min_32f)
     IfTypeThenTwoToOneBlock(double,volk_64f_x2_min_64f)
 
-    throw InvalidDTypeException(VOLKMinPath, {dtype});
+    throw InvalidDTypeException(VOLKMinPath, dtype);
 }
 
 static Pothos::BlockRegistry registerVOLKMin(
