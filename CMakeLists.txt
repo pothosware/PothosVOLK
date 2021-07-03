@@ -32,7 +32,9 @@ include_directories(
 set(sources
     source/BlockFactories.cpp
     source/Byteswap.cpp
+    source/ModRange.cpp
     source/Module.cpp
+    source/PopCnt.cpp
     source/SharedBufferAllocator.cpp
     source/SquareDist.cpp
 

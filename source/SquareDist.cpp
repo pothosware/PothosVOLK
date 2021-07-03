@@ -8,7 +8,7 @@
 #include <complex>
 
 //
-// Interface (separate class needed because signature doesn't match)
+// Interface
 //
 
 class SquareDist: public VOLKBlock

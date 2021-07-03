@@ -296,6 +296,35 @@ static Pothos::BlockRegistry registerVOLKLog2(
         .bind(volk_32f_log2_32f, 0));
 
 //
+// /volk/magnitude
+//
+
+static const std::string VOLKMagnitudePath = "/volk/magnitude";
+
+static Pothos::Block* makeMagnitude(const Pothos::DType& dtype)
+{
+    if(doesDTypeMatch<int16_t>(dtype)) return OneToOneBlock<std::complex<int16_t>,int16_t>::make(volk_16ic_magnitude_16i);
+    if(doesDTypeMatch<float>(dtype))   return OneToOneBlock<std::complex<float>,float>::make(volk_32fc_magnitude_32f);
+
+    throw InvalidDTypeException(VOLKMagnitudePath, dtype);
+}
+
+static Pothos::BlockRegistry registerVOLKMagnitude(
+    VOLKMagnitudePath,
+    &makeMagnitude);
+
+//
+// /volk/magnitude_squared
+//
+
+static const std::string VOLKMagnitudeSquaredPath = "/volk/magnitude_squared";
+
+static Pothos::BlockRegistry registerVOLKMagnitudeSquared(
+    VOLKMagnitudeSquaredPath,
+    Pothos::Callable(OneToOneBlock<std::complex<float>,float>::make)
+        .bind(volk_32fc_magnitude_squared_32f, 0));
+
+//
 // /volk/max
 //
 
