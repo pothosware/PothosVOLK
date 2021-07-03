@@ -729,4 +729,61 @@ POTHOS_TEST_BLOCK("/volk/tests", test_sin)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_square_dist)
 {
+#warning TODO after making custom block
+    /*
+    VOLKTests::testTwoToOneBlock<std::complex<float>,std::complex<float>,float>(
+        Pothos::BlockRegistry::make("/volk/square_dist"),
+        {},
+        {},
+        {});
+    */
+}
+
+//
+// /volk/sqrt
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_sqrt)
+{
+    VOLKTests::testOneToOneBlock<float,float>(
+        Pothos::BlockRegistry::make("/volk/sqrt"),
+        {0.0f, 1.0f, 4.0f, 9.0f, 16.0f, 25.0f},
+        {0.0f, 1.0f, 2.0f, 3.0f, 4.0f,  5.0f});
+}
+
+//
+// /volk/subtract
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_subtract)
+{
+    VOLKTests::testTwoToOneBlock<float,float,float>(
+        Pothos::BlockRegistry::make("/volk/subtract"),
+        {0.5f,  1.0f,  1.5f,  2.0f,  2.5f},
+        {-1.0f, 1.5f,  -2.0f, 2.5f,  -3.0f},
+        {1.5f,  -0.5f, 3.5f,  -0.5f, 5.5f});
+}
+
+//
+// /volk/tan
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_tan)
+{
+    VOLKTests::testOneToOneBlock<float,float>(
+        Pothos::BlockRegistry::make("/volk/tan"),
+        {0.0f, M_PI_4, M_PI},
+        {0.0f, 1.0f,   0.0f});
+}
+
+//
+// /volk/tanh
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_tanh)
+{
+    VOLKTests::testOneToOneBlock<float,float>(
+        Pothos::BlockRegistry::make("/volk/tanh"),
+        {0.0f, M_PI_2,   M_PI},
+        {0.0f, 0.91715f, 0.99627f});
 }

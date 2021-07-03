@@ -424,12 +424,16 @@ static Pothos::BlockRegistry registerVOLKSin(
 // /volk/square_dist
 //
 
+#warning TODO: make square_dist a custom block, signature is different for some reason
+
+/*
 static const std::string VOLKSquareDistPath = "/volk/square_dist";
 
 static Pothos::BlockRegistry registerVOLKSquareDist(
     VOLKSquareDistPath,
     Pothos::Callable(TwoToOneBlock<std::complex<float>,std::complex<float>,float>::make)
         .bind(volk_32fc_x2_square_dist_32f, 0));
+*/
 
 //
 // /volk/sqrt
