@@ -7,6 +7,8 @@
 
 #include <Pothos/Framework.hpp>
 
+#include <string>
+
 //
 // VOLKBlock
 //
@@ -102,12 +104,20 @@ class OneToOneScalarParamBlock: public VOLKBlock
         using Class = OneToOneScalarParamBlock<InType, OutType, ScalarType>;
         using Fcn = OneToOneScalarParamFcn<InType, OutType, ScalarType>;
 
-        static Pothos::Block* make(Fcn fcn)
+        static Pothos::Block* make(
+            Fcn fcn,
+            const std::string& getterName,
+            const std::string& setterName)
         {
-            return new Class(fcn);
+            return new Class(fcn, getterName, setterName);
         }
 
-        OneToOneScalarParamBlock(Fcn fcn): _fcn(fcn)
+        OneToOneScalarParamBlock(
+            Fcn fcn,
+            const std::string& getterName,
+            const std::string& setterName
+        ):
+            _fcn(fcn)
         {
             static const Pothos::DType InDType(typeid(InType));
             static const Pothos::DType OutDType(typeid(OutType));
@@ -115,8 +125,8 @@ class OneToOneScalarParamBlock: public VOLKBlock
             this->setupInput(0, InDType);
             this->setupOutput(0, OutDType);
 
-            this->registerCall(this, POTHOS_FCN_TUPLE(Class, scalar));
-            this->registerCall(this, POTHOS_FCN_TUPLE(Class, setScalar));
+            this->registerCall(this, getterName, &Class::scalar);
+            this->registerCall(this, setterName, &Class::setScalar);
         }
 
         virtual ~OneToOneScalarParamBlock() = default;

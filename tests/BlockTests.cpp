@@ -32,40 +32,6 @@ POTHOS_TEST_BLOCK("/volk/tests", test_acos)
 }
 
 //
-// /volk/asin
-//
-
-POTHOS_TEST_BLOCK("/volk/tests", test_asin)
-{
-    std::vector<float> testInputs      = {0.0f, 0.5f, 1.0f};
-    std::vector<float> expectedOutputs = {0.0f, M_PI/6.0f, M_PI_2};
-
-    auto asin = Pothos::BlockRegistry::make("/volk/asin");
-
-    VOLKTests::testOneToOneBlock<float,float>(
-        asin,
-        testInputs,
-        expectedOutputs);
-}
-
-//
-// /volk/atan
-//
-
-POTHOS_TEST_BLOCK("/volk/tests", test_atan)
-{
-    std::vector<float> testInputs      = {0.0f, 1.0f, INFINITY};
-    std::vector<float> expectedOutputs = {0.0f, M_PI/4.0f, M_PI_2};
-
-    auto atan = Pothos::BlockRegistry::make("/volk/atan");
-
-    VOLKTests::testOneToOneBlock<float,float>(
-        atan,
-        testInputs,
-        expectedOutputs);
-}
-
-//
 // /volk/add
 //
 
@@ -117,8 +83,11 @@ POTHOS_TEST_BLOCK("/volk/tests", test_add)
     testAdd<float,float,float>();
     testAdd<float,double,double>();
     testAdd<double,double,double>();
+    testAdd<std::complex<float>,float,std::complex<float>>();
     testAdd<std::complex<float>,std::complex<float>,std::complex<float>>();
 }
+
+// TODO: add_scalar
 
 //
 // /volk/and
@@ -138,6 +107,40 @@ POTHOS_TEST_BLOCK("/volk/tests", test_and)
         andBlock,
         testInputs0,
         testInputs1,
+        expectedOutputs);
+}
+
+//
+// /volk/asin
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_asin)
+{
+    std::vector<float> testInputs      = {0.0f, 0.5f, 1.0f};
+    std::vector<float> expectedOutputs = {0.0f, M_PI/6.0f, M_PI_2};
+
+    auto asin = Pothos::BlockRegistry::make("/volk/asin");
+
+    VOLKTests::testOneToOneBlock<float,float>(
+        asin,
+        testInputs,
+        expectedOutputs);
+}
+
+//
+// /volk/atan
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_atan)
+{
+    std::vector<float> testInputs      = {0.0f, 1.0f, INFINITY};
+    std::vector<float> expectedOutputs = {0.0f, M_PI/4.0f, M_PI_2};
+
+    auto atan = Pothos::BlockRegistry::make("/volk/atan");
+
+    VOLKTests::testOneToOneBlock<float,float>(
+        atan,
+        testInputs,
         expectedOutputs);
 }
 
@@ -207,6 +210,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_byteswap)
         {0x0807060504030201,0x0A09080706050403,0x0C0B0A0908070605});
 }
 
+// TODO: /volk/calc_spectral_noise_floor
+
 //
 // /volk/conjugate
 //
@@ -258,6 +263,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_convert)
         {0, 256, 512, 768, 1024, 1280, 32512},
         {0, 1, 2, 3, 4, 5, 127});
 }
+
+// TODO: /volk/convert_scaled
 
 //
 // /volk/cos
@@ -650,6 +657,9 @@ POTHOS_TEST_BLOCK("/volk/tests", test_multiply_conjugate)
         {{-14.5f,-7.5f}, {-5.0f,-2.25f}, {-0.625f,0.375f}, {-1.625f,0.0f}, {-13.125f,-10.0f}});
 }
 
+// TODO: /volk/multiply_scalar
+// TODO: /volk/normalize
+
 //
 // /volk/or
 //
@@ -684,6 +694,9 @@ POTHOS_TEST_BLOCK("/volk/tests", test_pow)
         {1.0f, 1.5f, 2.82843f, 6.25f, 15.58846f},
         true);
 }
+
+// TODO: /volk/power
+// TODO: /volk/power_spectrum
 
 //
 // /volk/reverse

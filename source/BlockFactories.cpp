@@ -17,6 +17,13 @@
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToOneBlock<InType, OutType>::make(fcn);
 
+#define IfTypesThenOneToOneScalarParamBlock(InType,OutType,ScalarType,GetterName,SetterName,Fcn) \
+    if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType) && doesDTypeMatch<ScalarType>(scalarDType)) \
+        return new OneToOneScalarParamBlock<InType,OutType,ScalarType>( \
+            Fcn, \
+            GetterName, \
+            SetterName);
+
 #define IfTypesThenOneToTwoBlock(InType,OutType,fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToTwoBlock<InType, OutType, OutType>::make(fcn);
@@ -76,6 +83,7 @@ static Pothos::Block* makeAdd(
     IfTypesThenTwoToOneBlock(float,double,double,volk_32f_64f_add_64f)
     IfTypesThenTwoToOneBlock(double,double,double,volk_64f_x2_add_64f)
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_add_32fc)
+    IfTypesThenTwoToOneBlock(std::complex<float>,float,std::complex<float>,volk_32fc_32f_add_32fc)
 
     throw InvalidDTypeException(VOLKAddPath, {inDType0, inDType1, outDType});
 }
@@ -83,6 +91,19 @@ static Pothos::Block* makeAdd(
 static Pothos::BlockRegistry registerVOLKAdd(
     VOLKAddPath,
     &makeAdd);
+
+//
+// /volk/add_scalar
+//
+
+static const std::string VOLKAddScalarPath = "/volk/add_scalar";
+
+static Pothos::BlockRegistry registerVOLKAddScalar(
+    VOLKAddScalarPath,
+    Pothos::Callable(OneToOneScalarParamBlock<float,float,float>::make)
+        .bind(volk_32f_s32f_add_32f, 0)
+        .bind("scalar", 1)
+        .bind("setScalar", 2));
 
 //
 // /volk/and
@@ -114,6 +135,19 @@ static Pothos::Block* makeBinarySlicer(
 static Pothos::BlockRegistry registerVOLKBinarySlicer(
     VOLKBinarySlicerPath,
     &makeBinarySlicer);
+
+//
+// /volk/calc_spectral_noise_floor
+//
+
+static const std::string VOLKCalcSpectralNoiseFloorPath = "/volk/calc_spectral_noise_floor";
+
+static Pothos::BlockRegistry registerVOLKCalcSpectralNoiseFloor(
+    VOLKCalcSpectralNoiseFloorPath,
+    Pothos::Callable(OneToOneScalarParamBlock<float,float,float>::make)
+        .bind(volk_32f_s32f_calc_spectral_noise_floor_32f, 0)
+        .bind("spectralExclusionValue", 1)
+        .bind("setSpectralExclusionValue", 2));
 
 //
 // /volk/conjugate
@@ -149,6 +183,34 @@ static Pothos::Block* makeConvert(
 static Pothos::BlockRegistry registerVOLKConvert(
     VOLKConvertPath,
     &makeConvert);
+
+//
+// /volk/convert_scaled
+//
+
+static const std::string VOLKConvertScaledPath = "/volk/convert_scaled";
+
+static Pothos::Block* makeConvertScaled(
+    const Pothos::DType& inDType,
+    const Pothos::DType& outDType,
+    const Pothos::DType& scalarDType)
+{
+    #define IfTypesThenConvertScaledBlock(InType,OutType,ScalarType,Fcn) \
+        IfTypesThenOneToOneScalarParamBlock(InType,OutType,ScalarType,"scalar","setScalar",Fcn)
+
+    IfTypesThenConvertScaledBlock(float,int32_t,float,volk_32f_s32f_convert_32i)
+    IfTypesThenConvertScaledBlock(float,int8_t,float,volk_32f_s32f_convert_8i)
+    IfTypesThenConvertScaledBlock(int32_t,float,float,volk_32i_s32f_convert_32f)
+    IfTypesThenConvertScaledBlock(int16_t,float,float,volk_16i_s32f_convert_32f)
+    IfTypesThenConvertScaledBlock(int8_t,float,float,volk_8i_s32f_convert_32f)
+    IfTypesThenConvertScaledBlock(float,int16_t,float,volk_32f_s32f_convert_16i)
+
+    throw InvalidDTypeException(VOLKConvertPath, {inDType, outDType, scalarDType});
+}
+
+static Pothos::BlockRegistry registerVOLKConvertScaled(
+    VOLKConvertScaledPath,
+    &makeConvertScaled);
 
 //
 // /volk/cos
@@ -385,6 +447,30 @@ static Pothos::BlockRegistry registerVOLKMultiply(
     &makeMultiply);
 
 //
+// /volk/multiply_scalar
+//
+
+static const std::string VOLKMultiplyScalarPath = "/volk/multiply_scalar";
+
+static Pothos::Block* makeMultiplyScalar(
+    const Pothos::DType& inDType,
+    const Pothos::DType& outDType,
+    const Pothos::DType& scalarDType)
+{
+    #define IfTypesThenMultiplyScalarBlock(InType,OutType,ScalarType,Fcn) \
+        IfTypesThenOneToOneScalarParamBlock(InType,OutType,ScalarType,"scalar","setScalar",Fcn)
+
+    IfTypesThenMultiplyScalarBlock(float,float,float,volk_32f_s32f_multiply_32f)
+    IfTypesThenMultiplyScalarBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_s32fc_multiply_32fc)
+
+    throw InvalidDTypeException(VOLKConvertPath, {inDType, outDType, scalarDType});
+}
+
+static Pothos::BlockRegistry registerVOLKMultiplyScalar(
+    VOLKMultiplyScalarPath,
+    &makeMultiplyScalar);
+
+//
 // /volk/multiply_conjugate
 //
 
@@ -404,6 +490,19 @@ static Pothos::Block* makeMultiplyConjugate(
 static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
     VOLKMultiplyConjugatePath,
     &makeMultiplyConjugate);
+
+//
+// /volk/normalize
+//
+
+static const std::string VOLKNormalizePath = "/volk/normalize";
+
+static Pothos::BlockRegistry registerVOLKNormalize(
+    VOLKNormalizePath,
+    Pothos::Callable(OneToOneScalarParamBlock<float,float,float>::make)
+        .bind(volk_32f_s32f_normalize, 0)
+        .bind("scalar", 1)
+        .bind("setScalar", 2));
 
 //
 // /volk/or
@@ -426,6 +525,32 @@ static Pothos::BlockRegistry registerVOLKPow(
     VOLKPowPath,
     Pothos::Callable(TwoToOneBlock<float,float,float>::make)
         .bind(volk_32f_x2_pow_32f, 0));
+
+//
+// /volk/power
+//
+
+static const std::string VOLKPowerPath = "/volk/power";
+
+static Pothos::BlockRegistry registerVOLKPower(
+    VOLKPowerPath,
+    Pothos::Callable(OneToOneScalarParamBlock<float,float,float>::make)
+        .bind(volk_32f_s32f_power_32f, 0)
+        .bind("power", 1)
+        .bind("setPower", 2));
+
+//
+// /volk/power_spectrum
+//
+
+static const std::string VOLKPowerSpectrumPath = "/volk/power_spectrum";
+
+static Pothos::BlockRegistry registerVOLKPowerSpectrum(
+    VOLKPowerSpectrumPath,
+    Pothos::Callable(OneToOneScalarParamBlock<std::complex<float>,float,float>::make)
+        .bind(volk_32fc_s32f_power_spectrum_32f, 0)
+        .bind("normalizationFactor", 1)
+        .bind("setNormalizationFactor", 2));
 
 //
 // /volk/reverse
