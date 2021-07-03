@@ -34,6 +34,8 @@ set(sources
     source/Byteswap.cpp
     source/Module.cpp
     source/SharedBufferAllocator.cpp
+    source/SquareDist.cpp
+
     tests/BlockTests.cpp)
 
 include(PothosUtil)

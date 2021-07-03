@@ -729,14 +729,36 @@ POTHOS_TEST_BLOCK("/volk/tests", test_sin)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_square_dist)
 {
-#warning TODO after making custom block
-    /*
-    VOLKTests::testTwoToOneBlock<std::complex<float>,std::complex<float>,float>(
-        Pothos::BlockRegistry::make("/volk/square_dist"),
-        {},
-        {},
-        {});
-    */
+    auto squareDist = Pothos::BlockRegistry::make("/volk/square_dist");
+
+    const std::complex<float> complexInput{0.5f, 2.0f};
+    squareDist.call("setComplexInput", complexInput);
+    POTHOS_TEST_EQUAL(
+        complexInput,
+        squareDist.call<std::complex<float>>("complexInput"));
+
+    constexpr size_t N = 16;
+    std::vector<std::complex<float>> inputs(N);
+    std::vector<float> expectedOutputs(N);
+
+    // Generate test data from example in VOLK header
+    uint32_t jj = 0;
+    const std::vector<float> constVals{-3, -1, 1, 3};
+    for(uint32_t ii = 0; ii < N; ++ii)
+    {
+        inputs[ii] = {constVals[ii%4], constVals[jj]};
+        if((ii+1)%4 == 0) ++jj;
+    }
+    for(uint32_t i = 0; i < N; ++i)
+    {
+        const auto diff = complexInput - inputs[i];
+        expectedOutputs[i] = std::pow(diff.real(), 2.0f) + std::pow(diff.imag(), 2.0f);
+    }
+
+    VOLKTests::testOneToOneBlock<std::complex<float>,float>(
+        squareDist,
+        inputs,
+        expectedOutputs);
 }
 
 //
