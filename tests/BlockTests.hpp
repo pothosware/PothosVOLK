@@ -12,7 +12,7 @@
 
 namespace VOLKTests
 {
-    static constexpr size_t NumRepetitions = 256;
+    static constexpr size_t NumRepetitions = 123;
 
     template <typename T>
     static constexpr T epsilon(bool)
@@ -168,7 +168,8 @@ namespace VOLKTests
         const Pothos::Proxy& testBlock,
         const std::vector<InType0>& testInputs0Vec,
         const std::vector<InType1>& testInputs1Vec,
-        const std::vector<OutType>& expectedOutputsVec)
+        const std::vector<OutType>& expectedOutputsVec,
+        bool lax = false)
     {
         static const Pothos::DType InDType0(typeid(InType0));
         static const Pothos::DType InDType1(typeid(InType1));
@@ -205,6 +206,7 @@ namespace VOLKTests
         auto outputs = sink.call<Pothos::BufferChunk>("getBuffer");
         testBufferChunks<OutType>(
             expectedOutputs,
-            outputs);
+            outputs,
+            lax);
     }
 }

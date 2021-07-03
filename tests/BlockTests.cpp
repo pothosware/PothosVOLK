@@ -437,20 +437,296 @@ POTHOS_TEST_BLOCK("/volk/tests", test_divide)
 // /volk/exp
 //
 
-POTHOS_TEST_BLOCK("/volk/tests", test_exp)
+static void testExp(const std::string& mode, bool laxEpsilon)
 {
-    std::cout << "Testing PRECISE mode..." << std::endl;
+    std::cout << "Testing " << mode << " mode..." << std::endl;
 
     VOLKTests::testOneToOneBlock<float,float>(
-        Pothos::BlockRegistry::make("/volk/exp", "PRECISE"),
-        {0.0f, 1.0f},
-        {1.0f, M_E});
-
-    std::cout << "Testing FAST mode..." << std::endl;
-
-    VOLKTests::testOneToOneBlock<float,float>(
-        Pothos::BlockRegistry::make("/volk/exp", "FAST"),
+        Pothos::BlockRegistry::make("/volk/exp", mode),
         {0.0f, 1.0f},
         {1.0f, M_E},
+        laxEpsilon);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_exp)
+{
+    testExp("PRECISE", false);
+    testExp("FAST", true);
+}
+
+//
+// /volk/interleave
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_interleave)
+{
+    auto interleaveBlock = Pothos::BlockRegistry::make("/volk/interleave");
+
+    VOLKTests::testTwoToOneBlock<float,float,std::complex<float>>(
+        interleaveBlock,
+        {-2.5f,         -0.5f,        1.5f},
+        {-1.5f,         0.5f,         2.5f},
+        {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}});
+}
+
+//
+// /volk/invsqrt
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_invsqrt)
+{
+    auto invSqrtBlock = Pothos::BlockRegistry::make("/volk/invsqrt");
+
+    VOLKTests::testOneToOneBlock<float,float>(
+        invSqrtBlock,
+        {0.125f,    0.5f,      2.0f},
+        {2.828427f, 1.414213f, 0.707106f});
+}
+
+//
+// /volk/log2
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_log2)
+{
+    auto log2Block = Pothos::BlockRegistry::make("/volk/log2");
+
+    VOLKTests::testOneToOneBlock<float,float>(
+        log2Block,
+        {1.0f, 2.0f, 4.0f, 5.0f},
+        {0.0f, 1.0f, 2.0f, 2.321928f});
+}
+
+//
+// /volk/max
+//
+
+template <typename T>
+static void testMax()
+{
+    const Pothos::DType dtype(typeid(T));
+
+    std::cout << "Testing " << dtype.name() << "..." << std::endl;
+
+    auto maxBlock = Pothos::BlockRegistry::make("/volk/max", dtype);
+
+    VOLKTests::testTwoToOneBlock<T,T,T>(
+        maxBlock,
+        {-5.0f, 3.0f,  -1.0f, 1.0f, -3.0f, 5.0f},
+        {4.0f,  -2.0f, 0.0f,  2.0f, -4.0f, 6.0f},
+        {4.0f,  3.0f,  0.0f,  2.0f, -3.0f, 6.0f});
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_max)
+{
+    testMax<float>();
+    testMax<double>();
+}
+
+//
+// /volk/min
+//
+
+template <typename T>
+static void testMin()
+{
+    const Pothos::DType dtype(typeid(T));
+
+    std::cout << "Testing " << dtype.name() << "..." << std::endl;
+
+    auto minBlock = Pothos::BlockRegistry::make("/volk/min", dtype);
+
+    VOLKTests::testTwoToOneBlock<T,T,T>(
+        minBlock,
+        {-5.0f, 3.0f,  -1.0f, 1.0f, -3.0f, 5.0f},
+        {4.0f,  -2.0f, 0.0f,  2.0f, -4.0f, 6.0f},
+        {-5.0f, -2.0f, -1.0f, 1.0f, -4.0f, 5.0f});
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_min)
+{
+    testMin<float>();
+    testMin<double>();
+}
+
+//
+// /volk/multiply
+//
+
+template <typename InType0, typename InType1, typename OutType>
+static void testMultiply(
+    const std::vector<InType0>& inputs0,
+    const std::vector<InType1>& inputs1,
+    const std::vector<OutType>& expectedOutputs)
+{
+    const Pothos::DType inDType0(typeid(InType0));
+    const Pothos::DType inDType1(typeid(InType1));
+    const Pothos::DType outDType(typeid(OutType));
+
+    std::cout << "Testing " << inDType0.name() << " * "
+                            << inDType1.name() << " -> "
+                            << outDType.name() << "..." << std::endl;
+
+    auto multiplyBlock = Pothos::BlockRegistry::make(
+        "/volk/multiply",
+        inDType0,
+        inDType1,
+        outDType);
+
+    VOLKTests::testTwoToOneBlock<InType0,InType1,OutType>(
+        multiplyBlock,
+        inputs0,
+        inputs1,
+        expectedOutputs);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_multiply)
+{
+    testMultiply<float,double,double>(
+        {0.5f, 1.0f, 1.5f, 2.0f, 2.5f},
+        {1.0,  1.5,  2.0,  2.5,  3.5},
+        {0.5,  1.5,  3.0,  5.0,  8.75});
+
+    testMultiply<double,double,double>(
+        {0.5, 1.0, 1.5, 2.0, 2.5},
+        {1.0, 1.5, 2.0, 2.5, 3.5},
+        {0.5, 1.5, 3.0, 5.0, 8.75});
+
+    testMultiply<std::complex<int16_t>,std::complex<int16_t>,std::complex<int16_t>>(
+        {{0,1},   {2,3},   {4,5},   {6,7},    {8,9}},
+        {{-9,-8}, {-7,-6}, {-5,-4}, {-3,-2},  {-1,0}},
+        {{8,-9},  {4,-33}, {0,-41}, {-4,-33}, {-8,-9}});
+
+    testMultiply<std::complex<float>,std::complex<float>,std::complex<float>>(
+        {{-2.5f,-2.0f},   {-1.5f,-1.0f},  {-0.5f,0.5f},     {1.0f,1.5f},    {2.0f,2.5f}},
+        {{5.0f,1.0f},     {3.0f,0.5f},    {1.0f,-0.25f},    {-0.5f,-0.75f}, {-5.0f,-1.25f}},
+        {{-10.5f,-12.5f}, {-4.0f,-3.75f}, {-0.375f,0.625f}, {0.625f,-1.5f}, {-6.875f,-15.0f}});
+
+    testMultiply<std::complex<float>,float,std::complex<float>>(
+        {{-2.5f,-2.0f}, {-1.5f,-1.0f},  {-0.5f,0.5f}, {1.0f,1.5f},  {2.0f,2.5f}},
+        {1.0f,          1.5f,           2.0f,         2.5f,         3.5f},
+        {{-2.5f,-2.0f}, {-2.25f,-1.5f}, {-1.0f,1.0f}, {2.5f,3.75f}, {7.0f,8.75f}});
+}
+
+//
+// /volk/multiply_conjugate
+//
+
+template <typename InType, typename OutType>
+static void testMultiplyConjugate(
+    const std::vector<InType>& inputs0,
+    const std::vector<InType>& inputs1,
+    const std::vector<OutType>& expectedOutputs)
+{
+    const Pothos::DType inDType(typeid(InType));
+    const Pothos::DType outDType(typeid(OutType));
+
+    std::cout << "Testing " << inDType.name() << " -> "
+                            << outDType.name() << "..." << std::endl;
+
+    auto multiplyConjugateBlock = Pothos::BlockRegistry::make(
+        "/volk/multiply_conjugate",
+        inDType,
+        inDType,
+        outDType);
+
+    VOLKTests::testTwoToOneBlock<InType,InType,OutType>(
+        multiplyConjugateBlock,
+        inputs0,
+        inputs1,
+        expectedOutputs);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_multiply_conjugate)
+{
+    testMultiplyConjugate<std::complex<int8_t>,std::complex<int16_t>>(
+        {{0,1},   {2,3},    {4,5},    {6,7},    {8,9}},
+        {{-9,-8}, {-7,-6},  {-5,-4},  {-3,-2},  {-1,0}},
+        {{-8,-9}, {-32,-9}, {-40,-9}, {-32,-9}, {-8,-9}});
+
+    testMultiplyConjugate<std::complex<float>,std::complex<float>>(
+        {{-2.5f,-2.0f},  {-1.5f,-1.0f},  {-0.5f,0.5f},     {1.0f,1.5f},    {2.0f,2.5f}},
+        {{5.0f,1.0f},    {3.0f,0.5f},    {1.0f,-0.25f},    {-0.5f,-0.75f}, {-5.0f,-1.25f}},
+        {{-14.5f,-7.5f}, {-5.0f,-2.25f}, {-0.625f,0.375f}, {-1.625f,0.0f}, {-13.125f,-10.0f}});
+}
+
+//
+// /volk/or
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_or)
+{
+    std::vector<int> testInputs0     = {123,456,789};
+    std::vector<int> testInputs1     = {321,654,987};
+    std::vector<int> expectedOutputs = {testInputs0[0] | testInputs1[0],
+                                        testInputs0[1] | testInputs1[1],
+                                        testInputs0[2] | testInputs1[2]};
+
+    auto orBlock = Pothos::BlockRegistry::make("/volk/or");
+
+    VOLKTests::testTwoToOneBlock<int,int,int>(
+        orBlock,
+        testInputs0,
+        testInputs1,
+        expectedOutputs);
+}
+
+//
+// /volk/pow
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_pow)
+{
+    VOLKTests::testTwoToOneBlock<float,float,float>(
+        Pothos::BlockRegistry::make("/volk/pow"),
+        {0.5f, 1.0f, 1.5f,     2.0f,  2.5f},
+        {1.0f, 1.5f, 2.0f,     2.5f,  3.0f},
+        {1.0f, 1.5f, 2.82843f, 6.25f, 15.58846f},
         true);
+}
+
+//
+// /volk/reverse
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_reverse)
+{
+    static const auto reverse = [](uint32_t num) -> uint32_t
+    {
+        uint32_t reverse_num = 0;
+
+        for(uint32_t i = 0; i < 32; ++i)
+        {
+            uint32_t temp = (num & (1 << i));
+            if(temp)
+                reverse_num |= (1 << (31 - i));
+        }
+
+        return reverse_num;
+    };
+
+    VOLKTests::testOneToOneBlock<uint32_t,uint32_t>(
+        Pothos::BlockRegistry::make("/volk/reverse"),
+        {1, 2, 3, 4, 5},
+        {reverse(1), reverse(2), reverse(3), reverse(4), reverse(5)});
+}
+
+//
+// /volk/sin
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_sin)
+{
+    VOLKTests::testOneToOneBlock<float,float>(
+        Pothos::BlockRegistry::make("/volk/sin"),
+        {0.0f, M_PI_2, M_PI},
+        {0.0f, 1.0f,   0.0f});
+}
+
+//
+// /volk/square_dist
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_square_dist)
+{
 }

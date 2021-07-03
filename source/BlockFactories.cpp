@@ -356,7 +356,7 @@ static Pothos::BlockRegistry registerVOLKMultiply(
     &makeMultiply);
 
 //
-// /volk/multiply
+// /volk/multiply_conjugate
 //
 
 static const std::string VOLKMultiplyConjugatePath = "/volk/multiply_conjugate";
