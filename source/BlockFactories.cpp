@@ -11,8 +11,6 @@
 #include <string>
 #include <vector>
 
-#warning TODO: versions with scalar params
-
 #define IfTypesThenOneToOneBlock(InType,OutType,fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToOneBlock<InType, OutType>::make(fcn);
@@ -28,12 +26,27 @@
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToTwoBlock<InType, OutType, OutType>::make(fcn);
 
+#define IfTypesThenOneToTwoScalarParamBlock(InType,OutType,ScalarType,GetterName,SetterName,Fcn) \
+    if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType) && doesDTypeMatch<ScalarType>(scalarDType)) \
+        return new OneToTwoScalarParamBlock<InType,OutType,OutType,ScalarType>( \
+            Fcn, \
+            GetterName, \
+            SetterName);
+
 #define IfTypeThenTwoToOneBlock(Type,fcn) \
     if(doesDTypeMatch<Type>(dtype)) return TwoToOneBlock<Type, Type, Type>::make(fcn);
 
 #define IfTypesThenTwoToOneBlock(InType0,InType1,OutType,fcn) \
     if(doesDTypeMatch<InType0>(inDType0) && doesDTypeMatch<InType1>(inDType1) && doesDTypeMatch<OutType>(outDType)) \
         return TwoToOneBlock<InType0, InType1, OutType>::make(fcn);
+
+#define IfTypesThenTwoToOneScalarParamBlock(InType0,InType1,OutType,ScalarType,GetterName,SetterName,Fcn) \
+    if(doesDTypeMatch<InType0>(inDType0) && doesDTypeMatch<InType1>(inDType1) && doesDTypeMatch<OutType>(outDType) && doesDTypeMatch<ScalarType>(scalarDType)) \
+        return new TwoToOneScalarParamBlock<InType0,InType1,OutType,ScalarType>( \
+            Fcn, \
+            GetterName, \
+            SetterName);
+
 
 //
 // /volk/acos
@@ -67,6 +80,19 @@ static Pothos::BlockRegistry registerVOLKATan(
     VOLKATanPath,
     Pothos::Callable(OneToOneBlock<float,float>::make)
         .bind(volk_32f_atan_32f, 0));
+
+//
+// /volk/atan2
+//
+
+static const std::string VOLKATan2Path = "/volk/atan2";
+
+static Pothos::BlockRegistry registerVOLKATan2(
+    VOLKATan2Path,
+    Pothos::Callable(OneToOneScalarParamBlock<std::complex<float>,float,float>::make)
+        .bind(volk_32fc_s32f_atan2_32f, 0)
+        .bind("normalizeFactor", 1)
+        .bind("setNormalizeFactor", 2));
 
 //
 // /volk/add
@@ -281,6 +307,49 @@ static Pothos::BlockRegistry registerVOLKDeinterleaveReal(
     &makeDeinterleaveReal);
 
 //
+// /volk/deinterleave_real_scaled
+//
+
+static const std::string VOLKDeinterleaveRealScaledPath = "/volk/deinterleave_real_scaled";
+
+static Pothos::Block* makeDeinterleaveRealScaled(
+    const Pothos::DType& inDType,
+    const Pothos::DType& outDType,
+    const Pothos::DType& scalarDType)
+{
+    IfTypesThenOneToOneScalarParamBlock(std::complex<int8_t>,float,float,"scalar","setScalar",volk_8ic_s32f_deinterleave_real_32f)
+    IfTypesThenOneToOneScalarParamBlock(std::complex<int16_t>,float,float,"scalar","setScalar",volk_16ic_s32f_deinterleave_real_32f)
+    IfTypesThenOneToOneScalarParamBlock(std::complex<float>,int16_t,float,"scalar","setScalar",volk_32fc_s32f_deinterleave_real_16i)
+
+    throw InvalidDTypeException(VOLKDeinterleaveRealScaledPath, {inDType, outDType, scalarDType});
+}
+
+static Pothos::BlockRegistry registerVOLKDeinterleaveRealScaled(
+    VOLKDeinterleaveRealScaledPath,
+    &makeDeinterleaveRealScaled);
+
+//
+// /volk/deinterleave_scaled
+//
+
+static const std::string VOLKDeinterleaveScaledPath = "/volk/deinterleave_scaled";
+
+static Pothos::Block* makeDeinterleaveScaled(
+    const Pothos::DType& inDType,
+    const Pothos::DType& outDType,
+    const Pothos::DType& scalarDType)
+{
+    IfTypesThenOneToTwoScalarParamBlock(std::complex<int8_t>,float,float,"scalar","setScalar",volk_8ic_s32f_deinterleave_32f_x2)
+    IfTypesThenOneToTwoScalarParamBlock(std::complex<int16_t>,float,float,"scalar","setScalar",volk_16ic_s32f_deinterleave_32f_x2)
+
+    throw InvalidDTypeException(VOLKDeinterleaveScaledPath, {inDType, outDType, scalarDType});
+}
+
+static Pothos::BlockRegistry registerVOLKDeinterleaveScaled(
+    VOLKDeinterleaveScaledPath,
+    &makeDeinterleaveScaled);
+
+//
 // /volk/divide
 //
 
@@ -334,6 +403,17 @@ static Pothos::BlockRegistry registerVOLKInterleave(
     VOLKInterleavePath,
     Pothos::Callable(TwoToOneBlock<float,float,std::complex<float>>::make)
         .bind(volk_32f_x2_interleave_32fc, 0));
+
+//
+// /volk/interleave_scaled
+//
+
+static const std::string VOLKInterleaveScaledPath = "/volk/interleave_scaled";
+
+static Pothos::BlockRegistry registerVOLKInterleaveScaled(
+    VOLKInterleaveScaledPath,
+    Pothos::Callable(TwoToOneScalarParamBlock<float,float,std::complex<int16_t>,float>::make)
+        .bind(volk_32f_x2_s32f_interleave_16ic, 0));
 
 //
 // /volk/invsqrt
@@ -405,6 +485,24 @@ static Pothos::BlockRegistry registerVOLKMax(
     &makeMax);
 
 //
+// /volk/max_star_horizontal (TODO: should just be max_star?)
+//
+
+// For some reason, the signature is different for this function,
+// so we need this lambda for it to match.
+static const auto VOLKMaxStarHorizontal = [](int16_t* out, const int16_t* in, unsigned int len)
+{
+    return volk_16i_max_star_horizontal_16i(out, const_cast<int16_t*>(in), len);
+};
+
+static const std::string VOLKMaxStarHorizontalPath = "/volk/max_star_horizontal_path";
+
+static Pothos::BlockRegistry registerVOLKMaxStarHorizontalPath(
+    VOLKMaxStarHorizontalPath,
+    Pothos::Callable(OneToOneBlock<int16_t,int16_t>::make)
+        .bind<OneToOneFcn<int16_t,int16_t>>(VOLKMaxStarHorizontal, 0));
+
+//
 // /volk/min
 //
 
@@ -447,6 +545,53 @@ static Pothos::BlockRegistry registerVOLKMultiply(
     &makeMultiply);
 
 //
+// /volk/multiply_conjugate
+//
+
+static const std::string VOLKMultiplyConjugatePath = "/volk/multiply_conjugate";
+
+static Pothos::Block* makeMultiplyConjugate(
+    const Pothos::DType& inDType0,
+    const Pothos::DType& inDType1,
+    const Pothos::DType& outDType)
+{
+    IfTypesThenTwoToOneBlock(std::complex<int8_t>,std::complex<int8_t>,std::complex<int16_t>,volk_8ic_x2_multiply_conjugate_16ic)
+    IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_conjugate_32fc)
+
+    throw InvalidDTypeException(VOLKMultiplyConjugatePath, {inDType0, inDType1, outDType});
+}
+
+static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
+    VOLKMultiplyConjugatePath,
+    &makeMultiplyConjugate);
+
+//
+// /volk/multiply_conjugate_add
+//
+
+static const std::string VOLKMultiplyConjugateAddPath = "/volk/multiply_conjugate_add";
+
+static Pothos::BlockRegistry registerVOLKMultiplyConjugateAdd(
+    VOLKMultiplyConjugateAddPath,
+    Pothos::Callable(TwoToOneScalarParamBlock<std::complex<float>,std::complex<float>,std::complex<float>,std::complex<float>>::make)
+        .bind(volk_32fc_x2_s32fc_multiply_conjugate_add_32fc, 0)
+        .bind("scalar", 1)
+        .bind("setScalar", 2));
+
+//
+// /volk/multiply_conjugate_scaled
+//
+
+static const std::string VOLKMultiplyConjugateScaledPath = "/volk/multiply_conjugate_scaled";
+
+static Pothos::BlockRegistry registerVOLKMultiplyConjugateScaled(
+    VOLKMultiplyConjugateScaledPath,
+    Pothos::Callable(TwoToOneScalarParamBlock<std::complex<int8_t>,std::complex<int8_t>,std::complex<float>,float>::make)
+        .bind(volk_8ic_x2_s32f_multiply_conjugate_32fc, 0)
+        .bind("scalar", 1)
+        .bind("setScalar", 2));
+
+//
 // /volk/multiply_scalar
 //
 
@@ -469,27 +614,6 @@ static Pothos::Block* makeMultiplyScalar(
 static Pothos::BlockRegistry registerVOLKMultiplyScalar(
     VOLKMultiplyScalarPath,
     &makeMultiplyScalar);
-
-//
-// /volk/multiply_conjugate
-//
-
-static const std::string VOLKMultiplyConjugatePath = "/volk/multiply_conjugate";
-
-static Pothos::Block* makeMultiplyConjugate(
-    const Pothos::DType& inDType0,
-    const Pothos::DType& inDType1,
-    const Pothos::DType& outDType)
-{
-    IfTypesThenTwoToOneBlock(std::complex<int8_t>,std::complex<int8_t>,std::complex<int16_t>,volk_8ic_x2_multiply_conjugate_16ic)
-    IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_conjugate_32fc)
-
-    throw InvalidDTypeException(VOLKMultiplyConjugatePath, {inDType0, inDType1, outDType});
-}
-
-static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
-    VOLKMultiplyConjugatePath,
-    &makeMultiplyConjugate);
 
 //
 // /volk/normalize

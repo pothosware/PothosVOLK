@@ -87,6 +87,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_add)
     testAdd<std::complex<float>,std::complex<float>,std::complex<float>>();
 }
 
+// TODO: add_quad
 // TODO: add_scalar
 
 //
@@ -143,6 +144,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_atan)
         testInputs,
         expectedOutputs);
 }
+
+// TODO: /volk/atan2
 
 //
 // /volk/binary_slicer
@@ -400,6 +403,9 @@ POTHOS_TEST_BLOCK("/volk/tests", test_deinterleave_real)
         {-2.5,          -0.5,         1.5});
 }
 
+// TODO: /volk/deinterleave_real_scaled
+// TODO: /volk/deinterleave_scaled
+
 //
 // /volk/divide
 //
@@ -476,6 +482,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_interleave)
         {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}});
 }
 
+// TODO: /volk/interleave_scaled
+
 //
 // /volk/invsqrt
 //
@@ -529,6 +537,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_max)
     testMax<float>();
     testMax<double>();
 }
+
+// TODO: /volk/max_star_horizontal
 
 //
 // /volk/min
@@ -657,6 +667,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_multiply_conjugate)
         {{-14.5f,-7.5f}, {-5.0f,-2.25f}, {-0.625f,0.375f}, {-1.625f,0.0f}, {-13.125f,-10.0f}});
 }
 
+// TODO: /volk/multiply_conjugate_add
+// TODO: /volk/multiply_conjugate_scaled
 // TODO: /volk/multiply_scalar
 // TODO: /volk/normalize
 
@@ -681,6 +693,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_or)
         expectedOutputs);
 }
 
+// TODO: /volk/popcnt
+
 //
 // /volk/pow
 //
@@ -696,7 +710,9 @@ POTHOS_TEST_BLOCK("/volk/tests", test_pow)
 }
 
 // TODO: /volk/power
+// TODO: /volk/power_spectral_density
 // TODO: /volk/power_spectrum
+// TODO: /volk/quad_max_star
 
 //
 // /volk/reverse
@@ -773,6 +789,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_square_dist)
         inputs,
         expectedOutputs);
 }
+
+// TODO: /volk/square_dist_scalar_mult
 
 //
 // /volk/sqrt

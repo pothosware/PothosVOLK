@@ -30,13 +30,17 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
 set(sources
+    source/AddQuad.cpp
     source/BlockFactories.cpp
     source/Byteswap.cpp
     source/ModRange.cpp
     source/Module.cpp
     source/PopCnt.cpp
+    source/PowerSpectralDensity.cpp
+    source/QuadMaxStar.cpp
     source/SharedBufferAllocator.cpp
     source/SquareDist.cpp
+    source/SquareDistScalarMult.cpp
 
     tests/BlockTests.cpp)
 

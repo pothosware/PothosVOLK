@@ -219,6 +219,85 @@ class OneToTwoBlock: public VOLKBlock
 };
 
 //
+// OneToTwoScalarParamBlock
+//
+
+template <typename InType, typename OutType0, typename OutType1, typename ScalarType>
+using OneToTwoScalarParamFcn = void(*)(OutType0*, OutType1*, const InType*, const ScalarType, unsigned int);
+
+template <typename InType, typename OutType0, typename OutType1, typename ScalarType>
+class OneToTwoScalarParamBlock: public VOLKBlock
+{
+    public:
+        using Class = OneToTwoScalarParamBlock<InType, OutType0, OutType1, ScalarType>;
+        using Fcn = OneToTwoScalarParamFcn<InType, OutType0, OutType1, ScalarType>;
+
+        static Pothos::Block* make(
+            Fcn fcn,
+            const std::string& getterName,
+            const std::string& setterName)
+        {
+            return new Class(fcn, getterName, setterName);
+        }
+
+        OneToTwoScalarParamBlock(
+            Fcn fcn,
+            const std::string& getterName,
+            const std::string& setterName
+        ):
+            _fcn(fcn)
+        {
+            static const Pothos::DType InDType(typeid(InType));
+            static const Pothos::DType OutDType0(typeid(OutType0));
+            static const Pothos::DType OutDType1(typeid(OutType1));
+            static const Pothos::DType ScalarDType(typeid(ScalarType));
+
+            this->setupInput(0, InDType);
+            this->setupOutput(0, OutDType0);
+            this->setupOutput(1, OutDType1);
+
+            this->registerCall(this, getterName, &Class::scalar);
+            this->registerCall(this, setterName, &Class::setScalar);
+        }
+
+        virtual ~OneToTwoScalarParamBlock() = default;
+
+        virtual ScalarType scalar() const
+        {
+            return _scalar;
+        }
+
+        virtual void setScalar(ScalarType scalar)
+        {
+            _scalar = scalar;
+        }
+
+        void work() override
+        {
+            const auto elems = this->workInfo().minElements;
+            if(0 == elems) return;
+
+            auto input = this->input(0);
+            auto output0 = this->output(0);
+            auto output1 = this->output(1);
+
+            _fcn(output0->buffer().template as<OutType0*>(),
+                 output1->buffer().template as<OutType1*>(),
+                 input->buffer().template as<const InType*>(),
+                 _scalar,
+                 static_cast<unsigned int>(elems));
+
+            input->consume(elems);
+            output0->produce(elems);
+            output1->produce(elems);
+        }
+
+    protected:
+        Fcn _fcn;
+        ScalarType _scalar;
+};
+
+//
 // TwoToOneBlock
 //
 
@@ -271,4 +350,82 @@ class TwoToOneBlock: public VOLKBlock
 
     protected:
         Fcn _fcn;
+};
+
+//
+// TwoToOneScalarParamBlock
+//
+
+template <typename InType0, typename InType1, typename OutType, typename ScalarType>
+using TwoToOneScalarParamFcn = void(*)(OutType*, const InType0*, const InType1*, const ScalarType, unsigned int);
+
+template <typename InType0, typename InType1, typename OutType, typename ScalarType>
+class TwoToOneScalarParamBlock: public VOLKBlock
+{
+    public:
+        using Class = TwoToOneScalarParamBlock<InType0, InType1, OutType, ScalarType>;
+        using Fcn = TwoToOneScalarParamFcn<InType0, InType1, OutType, ScalarType>;
+
+        static Pothos::Block* make(
+            Fcn fcn,
+            const std::string& getterName,
+            const std::string& setterName)
+        {
+            return new Class(fcn, getterName, setterName);
+        }
+
+        TwoToOneScalarParamBlock(
+            Fcn fcn,
+            const std::string& getterName,
+            const std::string& setterName
+        ):
+            _fcn(fcn)
+        {
+            static const Pothos::DType InDType0(typeid(InType0));
+            static const Pothos::DType InDType1(typeid(InType1));
+            static const Pothos::DType OutDType(typeid(OutType));
+
+            this->setupInput(0, InDType0);
+            this->setupInput(1, InDType1);
+            this->setupOutput(0, OutDType);
+
+            this->registerCall(this, getterName, &Class::scalar);
+            this->registerCall(this, setterName, &Class::setScalar);
+        }
+
+        virtual ~TwoToOneScalarParamBlock() = default;
+
+        virtual ScalarType scalar() const
+        {
+            return _scalar;
+        }
+
+        virtual void setScalar(ScalarType scalar)
+        {
+            _scalar = scalar;
+        }
+
+        void work() override
+        {
+            const auto elems = this->workInfo().minElements;
+            if(0 == elems) return;
+
+            auto input0 = this->input(0);
+            auto input1 = this->input(1);
+            auto output = this->output(0);
+
+            _fcn(output->buffer().template as<OutType*>(),
+                 input0->buffer().template as<const InType0*>(),
+                 input1->buffer().template as<const InType1*>(),
+                 _scalar,
+                 static_cast<unsigned int>(elems));
+
+            input0->consume(elems);
+            input1->consume(elems);
+            output->produce(elems);
+        }
+
+    protected:
+        Fcn _fcn;
+        ScalarType _scalar;
 };
