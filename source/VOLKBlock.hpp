@@ -38,6 +38,8 @@ class VOLKBlock: public Pothos::Block
 
             return bufferManager;
         }
+
+        virtual void work() = 0;
 };
 
 //
