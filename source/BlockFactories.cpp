@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#warning TODO: for consistency, (de)interleave blocks should have "real" and "imag" ports
+
 #define IfTypesThenOneToOneBlock(InType,OutType,fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToOneBlock<InType, OutType>::make(fcn);
@@ -637,7 +639,7 @@ static Pothos::Block* makeDeinterleave(
  * </p>
  *
  * <p>
- * Supported conversions:
+ * Supported types:
  * </p>
  *
  * <ul>
@@ -663,7 +665,7 @@ static Pothos::Block* makeDeinterleave(
  *   <li>
  *     cfloat32 -> float64,float64
  *     <ul>
- *       <li>Underlying function: <b>volk_64fc_deinterleave_64f_x2</b></li>
+ *       <li>Underlying function: <b>volk_32fc_deinterleave_64f_x2</b></li>
  *     </ul>
  *   </li>
  * </ul>
@@ -738,6 +740,77 @@ static Pothos::Block* makeDeinterleaveReal(
     throw InvalidDTypeException(VOLKDeinterleaveRealPath, {inDType, outDType});
 }
 
+/***********************************************************************
+ * |PothosDoc Deinterleave Real (VOLK)
+ *
+ * <p>
+ * For each complex input, outputs the real field, performing type
+ * conversions if needed.
+ * </p>
+ *
+ * <p>
+ * Supported types:
+ * </p>
+ *
+ * <ul>
+ *   <li>
+ *     cint8 -> int8
+ *     <ul>
+ *       <li>Underlying function: <b>volk_8ic_deinterleave_real_8i</b></li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     cint8 -> int16
+ *     <ul>
+ *       <li>Underlying function: <b>volk_8ic_deinterleave_real_16i</b></li>
+ *       <li>Multiplies all output values by <b>256</b>.</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     cint16 -> int8
+ *     <ul>
+ *       <li>Underlying function: <b>volk_16ic_deinterleave_real_8i</b></li>
+ *       <li>Divides all output values by <b>256</b>.</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     cint16 -> int16
+ *     <ul>
+ *       <li>Underlying function: <b>volk_16ic_deinterleave_real_16i</b></li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     cfloat32 -> float32
+ *     <ul>
+ *       <li>Underlying function: <b>volk_32fc_deinterleave_real_32f</b></li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     cfloat32 -> float64
+ *     <ul>
+ *       <li>Underlying function: <b>volk_32fc_deinterleave_real_64f</b></li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ *
+ * |category /Convert
+ * |category /Stream
+ * |category /Utility
+ * |category /VOLK
+ * |keywords complex
+ *
+ * |param inputDType[Data Type In]
+ * |widget DTypeChooser(cint8=1,cint16=1,cfloat32=1)
+ * |default "complex_float32"
+ * |preview disable
+ *
+ * |param outputDType[Data Type Out]
+ * |widget DTypeChooser(int8=1,int16=1,float32=1,float64=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |factory /volk/deinterleave_real(inputDType,outputDType)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKDeinterleaveReal(
     VOLKDeinterleaveRealPath,
     &makeDeinterleaveReal);
@@ -760,6 +833,71 @@ static Pothos::Block* makeDeinterleaveRealScaled(
     throw InvalidDTypeException(VOLKDeinterleaveRealScaledPath, {inDType, outDType, scalarDType});
 }
 
+/***********************************************************************
+ * |PothosDoc Deinterleave Real (Custom Scalar) (VOLK)
+ *
+ * <p>
+ * For each complex input, outputs the real field, performing type
+ * conversions and applying a given scalar. Whether the scalar is
+ * multiplied or divided depends on the conversion and is listed below.
+ * </p>
+ *
+ * <p>
+ * Supported types:
+ * </p>
+ *
+ * <ul>
+ *   <li>
+ *     cfloat32 -> int16 (float32 scalar)
+ *     <ul>
+ *       <li>Underlying function: <b>volk_32fc_s32f_deinterleave_real_16i</b></li>
+ *       <li>Multiplies all inputs by <b>scalar</b>.</li>
+ *       <li>Truncates all scaled values to fit inside an <b>int16</b>.</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     cint8 -> float32 (float32 scalar)
+ *     <ul>
+ *       <li>Underlying function: <b>volk_8ic_s32f_deinterleave_real_f32</b></li>
+ *       <li>Divides all inputs by <b>scalar</b>.</li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     cint16 -> float32 (float32 scalar)
+ *     <ul>
+ *       <li>Underlying function: <b>volk_16ic_s32f_deinterleave_real_f32</b></li>
+ *       <li>Divides all inputs by <b>scalar</b>.</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ *
+ * |category /Convert
+ * |category /VOLK
+ * |keywords type
+ *
+ * |param inputDType[Data Type In]
+ * |widget DTypeChooser(cint8=1,cint16=1,cfloat32=1)
+ * |default "complex_int16"
+ * |preview disable
+ *
+ * |param outputDType[Data Type Out]
+ * |widget DTypeChooser(int16=1,float32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |param scalarDType[Scalar Data Type]
+ * |widget DTypeChooser(float32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |param scalar[Scalar] A scalar to apply to each input post-conversion.
+ * |widget LineEdit()
+ * |default 1.0
+ * |preview enable
+ *
+ * |factory /volk/deinterleave_real_scaled(inputDType,outputDType,scalarDType)
+ * |setter setScalar(scalar)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKDeinterleaveRealScaled(
     VOLKDeinterleaveRealScaledPath,
     &makeDeinterleaveRealScaled);
@@ -781,6 +919,63 @@ static Pothos::Block* makeDeinterleaveScaled(
     throw InvalidDTypeException(VOLKDeinterleaveScaledPath, {inDType, outDType, scalarDType});
 }
 
+/***********************************************************************
+ * |PothosDoc Deinterleave (Custom Scalar) (VOLK)
+ *
+ * <p>
+ * Deinterleaves a complex input into its real and imaginary inputs,
+ * performing type conversions if needed. Multiplies each output by a
+ * given scalar value.
+ * </p>
+ *
+ * <p>
+ * Supported types:
+ * </p>
+ *
+ * <ul>
+ *   <li>
+ *     cint8 -> float32,float32 (float32 scalar)
+ *     <ul>
+ *       <li>Underlying function: <b>volk_8ic_s32f_deinterleave_32f_x2</b></li>
+ *     </ul>
+ *   </li>
+ *   <li>
+ *     cint16 -> float32,float32 (float32 scalar)
+ *     <ul>
+ *       <li>Underlying function: <b>volk_16ic_s32f_deinterleave_32f_x2</b></li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ *
+ * |category /Convert
+ * |category /Stream
+ * |category /Utility
+ * |category /VOLK
+ * |keywords complex real imag
+ *
+ * |param inputDType[Data Type In]
+ * |widget DTypeChooser(cint8=1,cint16=1)
+ * |default "complex_int8"
+ * |preview disable
+ *
+ * |param outputDType[Data Type Out]
+ * |widget DTypeChooser(float32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |param scalarDType[Scalar Data Type]
+ * |widget DTypeChooser(float32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |param scalar[Scalar] A scalar to apply to each input post-conversion.
+ * |widget LineEdit()
+ * |default 1.0
+ * |preview enable
+ *
+ * |factory /volk/deinterleave_scaled(inputDType,outputDType,scalarDType)
+ * |setter setScalar(scalar)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKDeinterleaveScaled(
     VOLKDeinterleaveScaledPath,
     &makeDeinterleaveScaled);
@@ -802,6 +997,39 @@ static Pothos::Block* makeDivide(
     throw InvalidDTypeException(VOLKDividePath, {inDType0, inDType1, outDType});
 }
 
+/***********************************************************************
+ * |PothosDoc Divide (VOLK)
+ *
+ * <p>
+ * Underlying functions:
+ * </p>
+ *
+ * <ul>
+ * <li><b>volk_32f_x2_divide_32f</b></li>
+ * <li><b>volk_32fc_x2_divide_32fc</b></li>
+ * </ul>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math
+ *
+ * |param input0DType[Data Type In0]
+ * |widget DTypeChooser(float32=1,cfloat32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |param input1DType[Data Type In1]
+ * |widget DTypeChooser(float32=1,cfloat32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |param outputDType[Data Type Out]
+ * |widget DTypeChooser(float32=1,cfloat32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |factory /volk/divide(input0DType,input1DType,outputDType)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKDivide(
     VOLKDividePath,
     &makeDivide);
@@ -825,6 +1053,33 @@ static Pothos::Block* makeExp(const std::string& mode)
     return OneToOneBlock<float,float>::make(volkFcn);
 }
 
+#warning TODO: why does this not show up in PothosFlow?
+/***********************************************************************
+ * |PothosDoc Exp (VOLK)
+ *
+ * <p>
+ * Underlying functions: <b>volk_32f_exp_32f</b>
+ * </p>
+ *
+ * <ul>
+ *   <li>Fast: <b>volk_32f_expfast_32f</b></li>
+ *   <li>Precise: <b>volk_32f_exp_32f</b></li>
+ * </ul>
+ *
+ * |param mode[Mode]
+ * The <b>FAST</b> operation can have up to a <b>7%</b> error.
+ * |widget ComboBox(editable=false)
+ * |default "PRECISE"
+ * |option [Fast] "FAST"
+ * |option [Precise] "PRECISE"
+ * |preview enable
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math
+ *
+ * |factory /volk/exp(mode)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKExp(
     VOLKExpPath,
     makeExp);
@@ -833,6 +1088,20 @@ static Pothos::BlockRegistry registerVOLKExp(
 // /volk/interleave
 //
 
+/***********************************************************************
+ * |PothosDoc Interleave (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_32f_x2_interleave_32fc</b>
+ * </p>
+ *
+ * |category /Stream
+ * |category /Convert
+ * |category /VOLK
+ * |keywords math trig
+ *
+ * |factory /volk/interleave()
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKInterleave(
     "/volk/interleave",
     Pothos::Callable(TwoToOneBlock<float,float,std::complex<float>>::make)
