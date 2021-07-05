@@ -10,7 +10,6 @@
 #include <Poco/Format.h>
 
 #include <algorithm>
-#include <functional>
 #include <string>
 #include <vector>
 
@@ -22,39 +21,68 @@ static bool doesDTypeMatch(const Pothos::DType& dtype)
     return (Pothos::DType::fromDType(dtype, 1) == DTypeT);
 }
 
-inline std::vector<std::string> dtypesToNames(const std::vector<Pothos::DType>& dtypes)
-{
-    std::vector<std::string> names;
-    std::transform(
-        dtypes.begin(),
-        dtypes.end(),
-        std::back_inserter(names),
-        std::mem_fn(&Pothos::DType::toString));
 
-    return names;
+template <typename T>
+static std::string valueToString(const T& input)
+{
+    return Pothos::Object(input).toString();
 }
 
-// TODO: separate input and output types in message
+template <typename T>
+static std::string valueToString(const std::vector<T>& inputs)
+{
+    auto stringVectorObj = Pothos::Object::make<std::vector<std::string>>({});
+
+    std::vector<std::string> strings;
+    std::transform(
+        inputs.begin(),
+        inputs.end(),
+        std::back_inserter(stringVectorObj.ref<std::vector<std::string>>()),
+        [](const T& input){return Pothos::Object(input).toString();});
+
+    return stringVectorObj.toString();
+}
+
 class InvalidDTypeException: public Pothos::InvalidArgumentException
 {
     public:
+        template <typename T>
         InvalidDTypeException(
             const std::string& context,
-            const Pothos::DType& dtype
+            const T& dtypes
         ):
             Pothos::InvalidArgumentException(Poco::format(
-                "%s dtypes: %s",
+                "%s dtype(s): %s",
                 context,
-                dtype.toString()))
+                valueToString(dtypes)))
         {}
+
+        template <typename T1, typename T2>
         InvalidDTypeException(
             const std::string& context,
-            const std::vector<Pothos::DType>& dtypes
+            const T1& dtypesIn,
+            const T2& dtypesOut
         ):
             Pothos::InvalidArgumentException(Poco::format(
-                "%s dtypes: %s",
+                "%s dtypes: %s -> %s",
                 context,
-                Pothos::Object(dtypesToNames(dtypes)).toString()))
+                valueToString(dtypesIn),
+                valueToString(dtypesOut)))
+        {}
+
+        template <typename T1, typename T2, typename T3>
+        InvalidDTypeException(
+            const std::string& context,
+            const T1& dtypesIn,
+            const T2& dtypesOut,
+            const T3& paramDTypes
+        ):
+            Pothos::InvalidArgumentException(Poco::format(
+                "%s dtypes: %s in, %s out, %s param(s)",
+                context,
+                valueToString(dtypesIn),
+                valueToString(dtypesOut),
+                valueToString(paramDTypes)))
         {}
 
         virtual ~InvalidDTypeException() = default;

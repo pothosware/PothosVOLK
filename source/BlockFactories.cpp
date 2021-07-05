@@ -168,7 +168,10 @@ static Pothos::Block* makeAdd(
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_add_32fc)
     IfTypesThenTwoToOneBlock(std::complex<float>,float,std::complex<float>,volk_32fc_32f_add_32fc)
 
-    throw InvalidDTypeException(VOLKAddPath, {inDType0, inDType1, outDType});
+    throw InvalidDTypeException(
+        VOLKAddPath,
+        std::vector<Pothos::DType>{inDType0, inDType1}, 
+        outDType);
 }
 
 /***********************************************************************
@@ -279,7 +282,10 @@ static Pothos::Block* makeBinarySlicer(
     IfTypesThenOneToOneBlock(float,int8_t,volk_32f_binary_slicer_8i)
     IfTypesThenOneToOneBlock(float,int32_t,volk_32f_binary_slicer_32i)
 
-    throw InvalidDTypeException(VOLKBinarySlicerPath, {inDType, outDType});
+    throw InvalidDTypeException(
+        VOLKBinarySlicerPath,
+        inDType,
+        outDType);
 }
 
 /***********************************************************************
@@ -403,7 +409,10 @@ static Pothos::Block* makeConvert(
     IfTypesThenOneToOneBlock(std::complex<int16_t>,std::complex<float>,volk_16ic_convert_32fc)
     IfTypesThenOneToOneBlock(std::complex<float>,std::complex<int16_t>,volk_32fc_convert_16ic)
 
-    throw InvalidDTypeException(VOLKConvertPath, {inDType, outDType});
+    throw InvalidDTypeException(
+        VOLKConvertPath,
+        inDType,
+        outDType);
 }
 
 /***********************************************************************
@@ -496,7 +505,11 @@ static Pothos::Block* makeConvertScaled(
     IfTypesThenConvertScaledBlock(int16_t,float,float,volk_16i_s32f_convert_32f)
     IfTypesThenConvertScaledBlock(int32_t,float,float,volk_32i_s32f_convert_32f)
 
-    throw InvalidDTypeException(VOLKConvertPath, {inDType, outDType, scalarDType});
+    throw InvalidDTypeException(
+        VOLKConvertPath,
+        inDType,
+        outDType,
+        scalarDType);
 }
 
 /***********************************************************************
@@ -627,7 +640,10 @@ static Pothos::Block* makeDeinterleave(
     IfTypesThenOneToTwoBlock(std::complex<float>,float,volk_32fc_deinterleave_32f_x2)
     IfTypesThenOneToTwoBlock(std::complex<float>,double,volk_32fc_deinterleave_64f_x2)
 
-    throw InvalidDTypeException(VOLKDeinterleavePath, {inDType, outDType});
+    throw InvalidDTypeException(
+        VOLKDeinterleavePath,
+        inDType,
+        outDType);
 }
 
 /***********************************************************************
@@ -737,7 +753,10 @@ static Pothos::Block* makeDeinterleaveReal(
     IfTypesThenOneToOneBlock(std::complex<float>,float,volk_32fc_deinterleave_real_32f)
     IfTypesThenOneToOneBlock(std::complex<float>,double,volk_32fc_deinterleave_real_64f)
 
-    throw InvalidDTypeException(VOLKDeinterleaveRealPath, {inDType, outDType});
+    throw InvalidDTypeException(
+        VOLKDeinterleaveRealPath,
+        inDType,
+        outDType);
 }
 
 /***********************************************************************
@@ -830,7 +849,11 @@ static Pothos::Block* makeDeinterleaveRealScaled(
     IfTypesThenOneToOneScalarParamBlock(std::complex<int16_t>,float,float,"scalar","setScalar",volk_16ic_s32f_deinterleave_real_32f)
     IfTypesThenOneToOneScalarParamBlock(std::complex<float>,int16_t,float,"scalar","setScalar",volk_32fc_s32f_deinterleave_real_16i)
 
-    throw InvalidDTypeException(VOLKDeinterleaveRealScaledPath, {inDType, outDType, scalarDType});
+    throw InvalidDTypeException(
+        VOLKDeinterleaveRealScaledPath,
+        inDType,
+        outDType,
+        scalarDType);
 }
 
 /***********************************************************************
@@ -916,7 +939,11 @@ static Pothos::Block* makeDeinterleaveScaled(
     IfTypesThenOneToTwoScalarParamBlock(std::complex<int8_t>,float,float,"scalar","setScalar",volk_8ic_s32f_deinterleave_32f_x2)
     IfTypesThenOneToTwoScalarParamBlock(std::complex<int16_t>,float,float,"scalar","setScalar",volk_16ic_s32f_deinterleave_32f_x2)
 
-    throw InvalidDTypeException(VOLKDeinterleaveScaledPath, {inDType, outDType, scalarDType});
+    throw InvalidDTypeException(
+        VOLKDeinterleaveScaledPath,
+        inDType,
+        outDType,
+        scalarDType);
 }
 
 /***********************************************************************
@@ -994,7 +1021,10 @@ static Pothos::Block* makeDivide(
     IfTypesThenTwoToOneBlock(float,float,float,volk_32f_x2_divide_32f)
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_divide_32fc)
 
-    throw InvalidDTypeException(VOLKDividePath, {inDType0, inDType1, outDType});
+    throw InvalidDTypeException(
+        VOLKDividePath,
+        std::vector<Pothos::DType>{inDType0, inDType1},
+        outDType);
 }
 
 /***********************************************************************
@@ -1111,6 +1141,28 @@ static Pothos::BlockRegistry registerVOLKInterleave(
 // /volk/interleave_scaled
 //
 
+/***********************************************************************
+ * |PothosDoc Interleave (Custom Scalar) (VOLK)
+ *
+ * <p>
+ * Interleaves real and imaginary inputs into a complex output, then
+ * applies a user-provided scalar.
+ * </p>
+ *
+ * |category /Convert
+ * |category /Stream
+ * |category /Utility
+ * |category /VOLK
+ * |keywords complex real imag
+ *
+ * |param scalar[Scalar] A scalar to apply to each input post-conversion.
+ * |widget DoubleSpinBox(decimals=3)
+ * |default 1.0
+ * |preview enable
+ *
+ * |factory /volk/interleave_scaled(inputDType,outputDType,scalarDType)
+ * |setter setScalar(scalar)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKInterleaveScaled(
     "/volk/interleave_scaled",
     Pothos::Callable(TwoToOneScalarParamBlock<float,float,std::complex<int16_t>,float>::make)
@@ -1120,6 +1172,19 @@ static Pothos::BlockRegistry registerVOLKInterleaveScaled(
 // /volk/invsqrt
 //
 
+/***********************************************************************
+ * |PothosDoc Interleave (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_32f_invsqrt_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math trig
+ *
+ * |factory /volk/invsqrt()
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKInvSqrt(
     "/volk/invsqrt",
     Pothos::Callable(OneToOneBlock<float,float>::make)
@@ -1129,6 +1194,19 @@ static Pothos::BlockRegistry registerVOLKInvSqrt(
 // /volk/log2
 //
 
+/***********************************************************************
+ * |PothosDoc Log2 (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_32f_log2_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math trig
+ *
+ * |factory /volk/log2()
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKLog2(
     "/volk/log2",
     Pothos::Callable(OneToOneBlock<float,float>::make)
@@ -1148,6 +1226,34 @@ static Pothos::Block* makeMagnitude(const Pothos::DType& dtype)
     throw InvalidDTypeException(VOLKMagnitudePath, dtype);
 }
 
+/***********************************************************************
+ * |PothosDoc Magnitude (VOLK)
+ *
+ * <p>
+ * Underlying functions:
+ * </p>
+ *
+ * <ul>
+ * <li><b>volk_16ic_magnitude_16i</b></li>
+ * <li><b>volk_32fc_magnitude_32f</b></li>
+ * </ul>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math complex
+ *
+ * |param inputDType[Data Type In]
+ * |widget DTypeChooser(cint16=1,cfloat32=1)
+ * |default "cfloat32"
+ * |preview disable
+ *
+ * |param outputDType[Data Type Out]
+ * |widget DTypeChooser(int16=1,float32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |factory /volk/magnitude(inputDType,outputDType)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMagnitude(
     VOLKMagnitudePath,
     &makeMagnitude);
@@ -1156,6 +1262,19 @@ static Pothos::BlockRegistry registerVOLKMagnitude(
 // /volk/magnitude_squared
 //
 
+/***********************************************************************
+ * |PothosDoc Magnitude Squared (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_32f_magnitude_squared_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math complex
+ *
+ * |factory /volk/magnitude_squared()
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMagnitudeSquared(
     "/volk/magnitude_squared",
     Pothos::Callable(OneToOneBlock<std::complex<float>,float>::make)
@@ -1175,6 +1294,33 @@ static Pothos::Block* makeMax(const Pothos::DType& dtype)
     throw InvalidDTypeException(VOLKMaxPath, dtype);
 }
 
+/***********************************************************************
+ * |PothosDoc Max (VOLK)
+ *
+ * <p>
+ * Underlying functions:
+ * </p>
+ *
+ * <ul>
+ * <li><b>volk_32fc_magnitude_32f</b></li>
+ * <li><b>volk_64fc_magnitude_64f</b></li>
+ * </ul>
+ *
+ * |category /Stream
+ * |category /VOLK
+ *
+ * |param inputDType[Data Type In]
+ * |widget DTypeChooser(float=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |param outputDType[Data Type Out]
+ * |widget DTypeChooser(float=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |factory /volk/magnitude(inputDType,outputDType)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMax(
     VOLKMaxPath,
     &makeMax);
@@ -1229,7 +1375,10 @@ static Pothos::Block* makeMultiply(
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_32fc)
     IfTypesThenTwoToOneBlock(std::complex<float>,float,std::complex<float>,volk_32fc_32f_multiply_32fc)
 
-    throw InvalidDTypeException(VOLKMultiplyPath, {inDType0, inDType1, outDType});
+    throw InvalidDTypeException(
+        VOLKMultiplyPath,
+        std::vector<Pothos::DType>{inDType0, inDType1},
+        outDType);
 }
 
 static Pothos::BlockRegistry registerVOLKMultiply(
@@ -1250,7 +1399,10 @@ static Pothos::Block* makeMultiplyConjugate(
     IfTypesThenTwoToOneBlock(std::complex<int8_t>,std::complex<int8_t>,std::complex<int16_t>,volk_8ic_x2_multiply_conjugate_16ic)
     IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_conjugate_32fc)
 
-    throw InvalidDTypeException(VOLKMultiplyConjugatePath, {inDType0, inDType1, outDType});
+    throw InvalidDTypeException(
+        VOLKMultiplyConjugatePath,
+        std::vector<Pothos::DType>{inDType0, inDType1},
+        outDType);
 }
 
 static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
@@ -1296,7 +1448,10 @@ static Pothos::Block* makeMultiplyScalar(
     IfTypesThenMultiplyScalarBlock(float,float,float,volk_32f_s32f_multiply_32f)
     IfTypesThenMultiplyScalarBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_s32fc_multiply_32fc)
 
-    throw InvalidDTypeException(VOLKConvertPath, {inDType, outDType, scalarDType});
+    throw InvalidDTypeException(
+        VOLKConvertPath,
+        std::vector<Pothos::DType>{inDType, outDType},
+        scalarDType);
 }
 
 static Pothos::BlockRegistry registerVOLKMultiplyScalar(
@@ -1327,6 +1482,7 @@ static Pothos::BlockRegistry registerVOLKOr(
 // /volk/pow
 //
 
+#warning TODO: inputs are unclear, use string port names
 static Pothos::BlockRegistry registerVOLKPow(
     "/volk/pow",
     Pothos::Callable(TwoToOneBlock<float,float,float>::make)

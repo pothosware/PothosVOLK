@@ -57,7 +57,7 @@ static Pothos::Block* makeByteswap(const Pothos::DType& dtype)
     IfTypeThenByteswap(uint32_t,volk_32u_byteswap)
     IfTypeThenByteswap(uint64_t,volk_64u_byteswap)
 
-    throw InvalidDTypeException(VOLKByteswapPath, {dtype});
+    throw InvalidDTypeException(VOLKByteswapPath, std::vector<Pothos::DType>{dtype});
 }
 
 static Pothos::BlockRegistry registerVOLKByteswap(
