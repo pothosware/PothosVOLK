@@ -538,7 +538,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_max)
     testMax<double>();
 }
 
-// TODO: /volk/max_star_horizontal
+// TODO: /volk/max_star
 
 //
 // /volk/min

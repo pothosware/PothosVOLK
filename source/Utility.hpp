@@ -34,6 +34,7 @@ inline std::vector<std::string> dtypesToNames(const std::vector<Pothos::DType>& 
     return names;
 }
 
+// TODO: separate input and output types in message
 class InvalidDTypeException: public Pothos::InvalidArgumentException
 {
     public:
