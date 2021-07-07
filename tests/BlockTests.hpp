@@ -93,6 +93,7 @@ namespace VOLKTests
         const auto expectedOutputs = VOLKTests::stdVectorToStretchedBufferChunk(
             expectedOutputsVec,
             NumRepetitions);
+        POTHOS_TEST_EQUAL(testInputs.elements(), expectedOutputs.elements());
 
         auto source = Pothos::BlockRegistry::make("/blocks/feeder_source", InDType);
         source.call("feedBuffer", testInputs);
@@ -115,12 +116,14 @@ namespace VOLKTests
             lax);
     }
 
-    template <typename InType, typename OutType0, typename OutType1>
+    template <typename InType, typename OutType0, typename OutType1, typename OutputPortType>
     void testOneToTwoBlock(
         const Pothos::Proxy& testBlock,
         const std::vector<InType>& testInputsVec,
         const std::vector<OutType0>& expectedOutputs0Vec,
-        const std::vector<OutType1>& expectedOutputs1Vec)
+        const std::vector<OutType1>& expectedOutputs1Vec,
+        const OutputPortType& outputPort0Name,
+        const OutputPortType& outputPort1Name)
     {
         static const Pothos::DType InDType(typeid(InType));
         static const Pothos::DType OutDType0(typeid(OutType0));
@@ -135,6 +138,8 @@ namespace VOLKTests
         const auto expectedOutputs1 = VOLKTests::stdVectorToStretchedBufferChunk(
             expectedOutputs1Vec,
             NumRepetitions);
+        POTHOS_TEST_EQUAL(testInputs.elements(), expectedOutputs0.elements());
+        POTHOS_TEST_EQUAL(testInputs.elements(), expectedOutputs1.elements());
 
         auto source = Pothos::BlockRegistry::make("/blocks/feeder_source", InDType);
         source.call("feedBuffer", testInputs);
@@ -145,8 +150,8 @@ namespace VOLKTests
         {
             Pothos::Topology topology;
             topology.connect(source, 0, testBlock, 0);
-            topology.connect(testBlock, 0, sink0, 0);
-            topology.connect(testBlock, 1, sink1, 0);
+            topology.connect(testBlock, outputPort0Name, sink0, 0);
+            topology.connect(testBlock, outputPort1Name, sink1, 0);
 
             topology.commit();
             POTHOS_TEST_TRUE(topology.waitInactive(0.01));
@@ -163,12 +168,14 @@ namespace VOLKTests
             outputs1);
     }
 
-    template <typename InType0, typename InType1, typename OutType>
+    template <typename InType0, typename InType1, typename OutType, typename InputPortType>
     void testTwoToOneBlock(
         const Pothos::Proxy& testBlock,
         const std::vector<InType0>& testInputs0Vec,
         const std::vector<InType1>& testInputs1Vec,
         const std::vector<OutType>& expectedOutputsVec,
+        const InputPortType& inputPort0Name,
+        const InputPortType& inputPort1Name,
         bool lax = false)
     {
         static const Pothos::DType InDType0(typeid(InType0));
@@ -184,6 +191,8 @@ namespace VOLKTests
         const auto expectedOutputs = VOLKTests::stdVectorToStretchedBufferChunk(
             expectedOutputsVec,
             NumRepetitions);
+        POTHOS_TEST_EQUAL(testInputs0.elements(), testInputs1.elements());
+        POTHOS_TEST_EQUAL(testInputs0.elements(), expectedOutputs.elements());
 
         auto source0 = Pothos::BlockRegistry::make("/blocks/feeder_source", InDType0);
         source0.call("feedBuffer", testInputs0);
@@ -195,8 +204,8 @@ namespace VOLKTests
 
         {
             Pothos::Topology topology;
-            topology.connect(source0, 0, testBlock, 0);
-            topology.connect(source1, 0, testBlock, 1);
+            topology.connect(source0, 0, testBlock, inputPort0Name);
+            topology.connect(source1, 0, testBlock, inputPort1Name);
             topology.connect(testBlock, 0, sink, 0);
 
             topology.commit();

@@ -172,39 +172,49 @@ class OneToOneScalarParamBlock: public VOLKBlock
 template <typename InType, typename OutType0, typename OutType1>
 using OneToTwoFcn = void(*)(OutType0*, OutType1*, const InType*, unsigned int);
 
-template <typename InType, typename OutType0, typename OutType1>
+template <typename InType, typename OutType0, typename OutType1, typename OutputPortType>
 class OneToTwoBlock: public VOLKBlock
 {
     public:
-        using Class = OneToTwoBlock<InType, OutType0, OutType1>;
+        using Class = OneToTwoBlock<InType, OutType0, OutType1, OutputPortType>;
         using Fcn = OneToTwoFcn<InType, OutType0, OutType1>;
 
-        static Pothos::Block* make(Fcn fcn)
+        static Pothos::Block* make(
+            Fcn fcn,
+            const OutputPortType& outputPort0Name,
+            const OutputPortType& outputPort1Name)
         {
-            return new Class(fcn);
+            return new Class(fcn, outputPort0Name, outputPort1Name);
         }
 
-        OneToTwoBlock(Fcn fcn): _fcn(fcn)
+        OneToTwoBlock(
+            Fcn fcn,
+            const OutputPortType& outputPort0Name,
+            const OutputPortType& outputPort1Name
+        ):
+            _fcn(fcn),
+            _outputPort0Name(outputPort0Name),
+            _outputPort1Name(outputPort1Name)
         {
             static const Pothos::DType InDType(typeid(InType));
             static const Pothos::DType OutDType0(typeid(OutType0));
             static const Pothos::DType OutDType1(typeid(OutType1));
 
             this->setupInput(0, InDType);
-            this->setupOutput(0, OutDType0);
-            this->setupOutput(1, OutDType1);
+            this->setupOutput(_outputPort0Name, OutDType0);
+            this->setupOutput(_outputPort1Name, OutDType1);
         }
 
         virtual ~OneToTwoBlock() = default;
 
         void work() override
         {
-            const auto elems = this->workInfo().minElements;
+            const auto elems = this->workInfo().minAllElements;
             if(0 == elems) return;
 
             auto input = this->input(0);
-            auto output0 = this->output(0);
-            auto output1 = this->output(1);
+            auto output0 = this->output(_outputPort0Name);
+            auto output1 = this->output(_outputPort1Name);
 
             _fcn(output0->buffer().template as<OutType0*>(),
                  output1->buffer().template as<OutType1*>(),
@@ -218,6 +228,8 @@ class OneToTwoBlock: public VOLKBlock
 
     protected:
         Fcn _fcn;
+        OutputPortType _outputPort0Name;
+        OutputPortType _outputPort1Name;
 };
 
 //
@@ -227,27 +239,33 @@ class OneToTwoBlock: public VOLKBlock
 template <typename InType, typename OutType0, typename OutType1, typename ScalarType>
 using OneToTwoScalarParamFcn = void(*)(OutType0*, OutType1*, const InType*, const ScalarType, unsigned int);
 
-template <typename InType, typename OutType0, typename OutType1, typename ScalarType>
+template <typename InType, typename OutType0, typename OutType1, typename ScalarType, typename OutputPortType>
 class OneToTwoScalarParamBlock: public VOLKBlock
 {
     public:
-        using Class = OneToTwoScalarParamBlock<InType, OutType0, OutType1, ScalarType>;
+        using Class = OneToTwoScalarParamBlock<InType, OutType0, OutType1, ScalarType, OutputPortType>;
         using Fcn = OneToTwoScalarParamFcn<InType, OutType0, OutType1, ScalarType>;
 
         static Pothos::Block* make(
             Fcn fcn,
             const std::string& getterName,
-            const std::string& setterName)
+            const std::string& setterName,
+            const OutputPortType& outputPort0Name,
+            const OutputPortType& outputPort1Name)
         {
-            return new Class(fcn, getterName, setterName);
+            return new Class(fcn, getterName, setterName, outputPort0Name, outputPort1Name);
         }
 
         OneToTwoScalarParamBlock(
             Fcn fcn,
             const std::string& getterName,
-            const std::string& setterName
+            const std::string& setterName,
+            const OutputPortType& outputPort0Name,
+            const OutputPortType& outputPort1Name
         ):
-            _fcn(fcn)
+            _fcn(fcn),
+            _outputPort0Name(outputPort0Name),
+            _outputPort1Name(outputPort1Name)
         {
             static const Pothos::DType InDType(typeid(InType));
             static const Pothos::DType OutDType0(typeid(OutType0));
@@ -255,8 +273,8 @@ class OneToTwoScalarParamBlock: public VOLKBlock
             static const Pothos::DType ScalarDType(typeid(ScalarType));
 
             this->setupInput(0, InDType);
-            this->setupOutput(0, OutDType0);
-            this->setupOutput(1, OutDType1);
+            this->setupOutput(_outputPort0Name, OutDType0);
+            this->setupOutput(_outputPort1Name, OutDType1);
 
             this->registerCall(this, getterName, &Class::scalar);
             this->registerCall(this, setterName, &Class::setScalar);
@@ -280,8 +298,8 @@ class OneToTwoScalarParamBlock: public VOLKBlock
             if(0 == elems) return;
 
             auto input = this->input(0);
-            auto output0 = this->output(0);
-            auto output1 = this->output(1);
+            auto output0 = this->output(_outputPort0Name);
+            auto output1 = this->output(_outputPort1Name);
 
             _fcn(output0->buffer().template as<OutType0*>(),
                  output1->buffer().template as<OutType1*>(),
@@ -297,6 +315,8 @@ class OneToTwoScalarParamBlock: public VOLKBlock
     protected:
         Fcn _fcn;
         ScalarType _scalar;
+        OutputPortType _outputPort0Name;
+        OutputPortType _outputPort1Name;
 };
 
 //
@@ -306,26 +326,36 @@ class OneToTwoScalarParamBlock: public VOLKBlock
 template <typename InType0, typename InType1, typename OutType>
 using TwoToOneFcn = void(*)(OutType*, const InType0*, const InType1*, unsigned int);
 
-template <typename InType0, typename InType1, typename OutType>
+template <typename InType0, typename InType1, typename OutType, typename InputPortType>
 class TwoToOneBlock: public VOLKBlock
 {
     public:
-        using Class = TwoToOneBlock<InType0, InType1, OutType>;
+        using Class = TwoToOneBlock<InType0, InType1, OutType, InputPortType>;
         using Fcn = TwoToOneFcn<InType0, InType1, OutType>;
 
-        static Pothos::Block* make(Fcn fcn)
+        static Pothos::Block* make(
+            Fcn fcn,
+            const InputPortType& inputPort0Name,
+            const InputPortType& inputPort1Name)
         {
-            return new Class(fcn);
+            return new Class(fcn, inputPort0Name, inputPort1Name);
         }
 
-        TwoToOneBlock(Fcn fcn): _fcn(fcn)
+        TwoToOneBlock(
+            Fcn fcn,
+            const InputPortType& inputPort0Name,
+            const InputPortType& inputPort1Name
+        ):
+            _fcn(fcn),
+            _inputPort0Name(inputPort0Name),
+            _inputPort1Name(inputPort1Name)
         {
             static const Pothos::DType InDType0(typeid(InType0));
             static const Pothos::DType InDType1(typeid(InType1));
             static const Pothos::DType OutDType(typeid(OutType));
 
-            this->setupInput(0, InDType0);
-            this->setupInput(1, InDType1);
+            this->setupInput(_inputPort0Name, InDType0);
+            this->setupInput(_inputPort1Name, InDType1);
             this->setupOutput(0, OutDType);
         }
 
@@ -333,11 +363,11 @@ class TwoToOneBlock: public VOLKBlock
 
         void work() override
         {
-            const auto elems = this->workInfo().minElements;
+            const auto elems = this->workInfo().minAllElements;
             if(0 == elems) return;
 
-            auto input0 = this->input(0);
-            auto input1 = this->input(1);
+            auto input0 = this->input(_inputPort0Name);
+            auto input1 = this->input(_inputPort1Name);
             auto output = this->output(0);
 
             _fcn(output->buffer().template as<OutType*>(),
@@ -352,6 +382,8 @@ class TwoToOneBlock: public VOLKBlock
 
     protected:
         Fcn _fcn;
+        InputPortType _inputPort0Name;
+        InputPortType _inputPort1Name;
 };
 
 //
@@ -361,34 +393,40 @@ class TwoToOneBlock: public VOLKBlock
 template <typename InType0, typename InType1, typename OutType, typename ScalarType>
 using TwoToOneScalarParamFcn = void(*)(OutType*, const InType0*, const InType1*, const ScalarType, unsigned int);
 
-template <typename InType0, typename InType1, typename OutType, typename ScalarType>
+template <typename InType0, typename InType1, typename OutType, typename ScalarType, typename InputPortType>
 class TwoToOneScalarParamBlock: public VOLKBlock
 {
     public:
-        using Class = TwoToOneScalarParamBlock<InType0, InType1, OutType, ScalarType>;
+        using Class = TwoToOneScalarParamBlock<InType0, InType1, OutType, ScalarType, InputPortType>;
         using Fcn = TwoToOneScalarParamFcn<InType0, InType1, OutType, ScalarType>;
 
         static Pothos::Block* make(
             Fcn fcn,
             const std::string& getterName,
-            const std::string& setterName)
+            const std::string& setterName,
+            const InputPortType& inputPort0Name,
+            const InputPortType& inputPort1Name)
         {
-            return new Class(fcn, getterName, setterName);
+            return new Class(fcn, getterName, setterName, inputPort0Name, inputPort1Name);
         }
 
         TwoToOneScalarParamBlock(
             Fcn fcn,
             const std::string& getterName,
-            const std::string& setterName
+            const std::string& setterName,
+            const InputPortType& inputPort0Name,
+            const InputPortType& inputPort1Name
         ):
-            _fcn(fcn)
+            _fcn(fcn),
+            _inputPort0Name(inputPort0Name),
+            _inputPort1Name(inputPort1Name)
         {
             static const Pothos::DType InDType0(typeid(InType0));
             static const Pothos::DType InDType1(typeid(InType1));
             static const Pothos::DType OutDType(typeid(OutType));
 
-            this->setupInput(0, InDType0);
-            this->setupInput(1, InDType1);
+            this->setupInput(inputPort0Name, InDType0);
+            this->setupInput(inputPort1Name, InDType1);
             this->setupOutput(0, OutDType);
 
             this->registerCall(this, getterName, &Class::scalar);
@@ -412,8 +450,8 @@ class TwoToOneScalarParamBlock: public VOLKBlock
             const auto elems = this->workInfo().minElements;
             if(0 == elems) return;
 
-            auto input0 = this->input(0);
-            auto input1 = this->input(1);
+            auto input0 = this->input(_inputPort0Name);
+            auto input1 = this->input(_inputPort1Name);
             auto output = this->output(0);
 
             _fcn(output->buffer().template as<OutType*>(),
@@ -430,4 +468,6 @@ class TwoToOneScalarParamBlock: public VOLKBlock
     protected:
         Fcn _fcn;
         ScalarType _scalar;
+        InputPortType _inputPort0Name;
+        InputPortType _inputPort1Name;
 };

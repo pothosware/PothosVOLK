@@ -73,11 +73,13 @@ static void testAdd()
         inDType1,
         outDType);
 
-    VOLKTests::testTwoToOneBlock<InType0,InType1,OutType>(
+    VOLKTests::testTwoToOneBlock<InType0,InType1,OutType,size_t>(
         add,
         testInputs0,
         testInputs1,
-        expectedOutputs);
+        expectedOutputs,
+        0,
+        1);
 }
 
 POTHOS_TEST_BLOCK("/volk/tests", test_add)
@@ -106,11 +108,13 @@ POTHOS_TEST_BLOCK("/volk/tests", test_and)
 
     auto andBlock = Pothos::BlockRegistry::make("/volk/and");
 
-    VOLKTests::testTwoToOneBlock<int,int,int>(
+    VOLKTests::testTwoToOneBlock<int,int,int,size_t>(
         andBlock,
         testInputs0,
         testInputs1,
-        expectedOutputs);
+        expectedOutputs,
+        0,
+        1);
 }
 
 //
@@ -307,11 +311,13 @@ static void testDeinterleave(
         inDType,
         outDType);
 
-    VOLKTests::testOneToTwoBlock<InType,OutType>(
+    VOLKTests::testOneToTwoBlock<InType,OutType,OutType,std::string>(
         deinterleaveBlock,
         inputs,
         expectedOutputs0,
-        expectedOutputs1);
+        expectedOutputs1,
+        "real",
+        "imag");
 }
 
 POTHOS_TEST_BLOCK("/volk/tests", test_deinterleave)
@@ -428,11 +434,13 @@ static void testDivide(
         dtype,
         dtype);
 
-    VOLKTests::testTwoToOneBlock<T,T,T>(
+    VOLKTests::testTwoToOneBlock<T,T,T,size_t>(
         divideBlock,
         inputs0,
         inputs1,
-        expectedOutputs);
+        expectedOutputs,
+        0,
+        1);
 }
 
 POTHOS_TEST_BLOCK("/volk/tests", test_divide)
@@ -477,11 +485,13 @@ POTHOS_TEST_BLOCK("/volk/tests", test_interleave)
 {
     auto interleaveBlock = Pothos::BlockRegistry::make("/volk/interleave");
 
-    VOLKTests::testTwoToOneBlock<float,float,std::complex<float>>(
+    VOLKTests::testTwoToOneBlock<float,float,std::complex<float>,std::string>(
         interleaveBlock,
         {-2.5f,         -0.5f,        1.5f},
         {-1.5f,         0.5f,         2.5f},
-        {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}});
+        {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}},
+        "real",
+        "imag");
 }
 
 // TODO: /volk/interleave_scaled
@@ -527,11 +537,13 @@ static void testMax()
 
     auto maxBlock = Pothos::BlockRegistry::make("/volk/max", dtype);
 
-    VOLKTests::testTwoToOneBlock<T,T,T>(
+    VOLKTests::testTwoToOneBlock<T,T,T,size_t>(
         maxBlock,
         {-5.0f, 3.0f,  -1.0f, 1.0f, -3.0f, 5.0f},
         {4.0f,  -2.0f, 0.0f,  2.0f, -4.0f, 6.0f},
-        {4.0f,  3.0f,  0.0f,  2.0f, -3.0f, 6.0f});
+        {4.0f,  3.0f,  0.0f,  2.0f, -3.0f, 6.0f},
+        0,
+        1);
 }
 
 POTHOS_TEST_BLOCK("/volk/tests", test_max)
@@ -555,11 +567,13 @@ static void testMin()
 
     auto minBlock = Pothos::BlockRegistry::make("/volk/min", dtype);
 
-    VOLKTests::testTwoToOneBlock<T,T,T>(
+    VOLKTests::testTwoToOneBlock<T,T,T,size_t>(
         minBlock,
         {-5.0f, 3.0f,  -1.0f, 1.0f, -3.0f, 5.0f},
         {4.0f,  -2.0f, 0.0f,  2.0f, -4.0f, 6.0f},
-        {-5.0f, -2.0f, -1.0f, 1.0f, -4.0f, 5.0f});
+        {-5.0f, -2.0f, -1.0f, 1.0f, -4.0f, 5.0f},
+        0,
+        1);
 }
 
 POTHOS_TEST_BLOCK("/volk/tests", test_min)
@@ -592,11 +606,13 @@ static void testMultiply(
         inDType1,
         outDType);
 
-    VOLKTests::testTwoToOneBlock<InType0,InType1,OutType>(
+    VOLKTests::testTwoToOneBlock<InType0,InType1,OutType,size_t>(
         multiplyBlock,
         inputs0,
         inputs1,
-        expectedOutputs);
+        expectedOutputs,
+        0,
+        1);
 }
 
 POTHOS_TEST_BLOCK("/volk/tests", test_multiply)
@@ -649,11 +665,13 @@ static void testMultiplyConjugate(
         inDType,
         outDType);
 
-    VOLKTests::testTwoToOneBlock<InType,InType,OutType>(
+    VOLKTests::testTwoToOneBlock<InType,InType,OutType,size_t>(
         multiplyConjugateBlock,
         inputs0,
         inputs1,
-        expectedOutputs);
+        expectedOutputs,
+        0,
+        1);
 }
 
 POTHOS_TEST_BLOCK("/volk/tests", test_multiply_conjugate)
@@ -688,11 +706,13 @@ POTHOS_TEST_BLOCK("/volk/tests", test_or)
 
     auto orBlock = Pothos::BlockRegistry::make("/volk/or");
 
-    VOLKTests::testTwoToOneBlock<int,int,int>(
+    VOLKTests::testTwoToOneBlock<int,int,int,size_t>(
         orBlock,
         testInputs0,
         testInputs1,
-        expectedOutputs);
+        expectedOutputs,
+        0,
+        1);
 }
 
 // TODO: /volk/popcnt
@@ -703,11 +723,13 @@ POTHOS_TEST_BLOCK("/volk/tests", test_or)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_pow)
 {
-    VOLKTests::testTwoToOneBlock<float,float,float>(
+    VOLKTests::testTwoToOneBlock<float,float,float,std::string>(
         Pothos::BlockRegistry::make("/volk/pow"),
         {0.5f, 1.0f, 1.5f,     2.0f,  2.5f},
         {1.0f, 1.5f, 2.0f,     2.5f,  3.0f},
         {1.0f, 1.5f, 2.82843f, 6.25f, 15.58846f},
+        "exponent",
+        "input",
         true);
 }
 
@@ -812,11 +834,13 @@ POTHOS_TEST_BLOCK("/volk/tests", test_sqrt)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_subtract)
 {
-    VOLKTests::testTwoToOneBlock<float,float,float>(
+    VOLKTests::testTwoToOneBlock<float,float,float,size_t>(
         Pothos::BlockRegistry::make("/volk/subtract"),
         {0.5f,  1.0f,  1.5f,  2.0f,  2.5f},
         {-1.0f, 1.5f,  -2.0f, 2.5f,  -3.0f},
-        {1.5f,  -0.5f, 3.5f,  -0.5f, 5.5f});
+        {1.5f,  -0.5f, 3.5f,  -0.5f, 5.5f},
+        0,
+        1);
 }
 
 //

@@ -11,8 +11,6 @@
 #include <string>
 #include <vector>
 
-#warning TODO: for consistency, (de)interleave blocks should have "real" and "imag" ports
-
 #define IfTypesThenOneToOneBlock(InType,OutType,fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToOneBlock<InType, OutType>::make(fcn);
@@ -24,23 +22,28 @@
             GetterName, \
             SetterName);
 
-#define IfTypesThenOneToTwoBlock(InType,OutType,fcn) \
+#define IfTypesThenOneToTwoBlock(InType,OutType,OutputPortType,Fcn,port0Name,port1Name) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
-        return OneToTwoBlock<InType, OutType, OutType>::make(fcn);
+        return OneToTwoBlock<InType, OutType, OutType, OutputPortType>::make( \
+            Fcn, \
+            port0Name, \
+            port1Name);
 
-#define IfTypesThenOneToTwoScalarParamBlock(InType,OutType,ScalarType,GetterName,SetterName,Fcn) \
+#define IfTypesThenOneToTwoScalarParamBlock(InType,OutType,ScalarType,OutputPortType,GetterName,SetterName,Fcn,port0Name,port1Name) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType) && doesDTypeMatch<ScalarType>(scalarDType)) \
-        return new OneToTwoScalarParamBlock<InType,OutType,OutType,ScalarType>( \
+        return new OneToTwoScalarParamBlock<InType,OutType,OutType,ScalarType,OutputPortType>( \
             Fcn, \
             GetterName, \
-            SetterName);
+            SetterName, \
+            port0Name, \
+            port1Name);
 
-#define IfTypeThenTwoToOneBlock(Type,fcn) \
-    if(doesDTypeMatch<Type>(dtype)) return TwoToOneBlock<Type, Type, Type>::make(fcn);
+#define IfTypeThenTwoToOneBlock(Type,InputPortType,fcn,port0Name,port1Name) \
+    if(doesDTypeMatch<Type>(dtype)) return TwoToOneBlock<Type, Type, Type, InputPortType>::make(fcn, port0Name, port1Name);
 
-#define IfTypesThenTwoToOneBlock(InType0,InType1,OutType,fcn) \
+#define IfTypesThenTwoToOneBlock(InType0,InType1,OutType,InputPortType,fcn,port0Name,port1Name) \
     if(doesDTypeMatch<InType0>(inDType0) && doesDTypeMatch<InType1>(inDType1) && doesDTypeMatch<OutType>(outDType)) \
-        return TwoToOneBlock<InType0, InType1, OutType>::make(fcn);
+        return TwoToOneBlock<InType0, InType1, OutType, InputPortType>::make(fcn,port0Name,port1Name);
 
 #define IfTypesThenTwoToOneScalarParamBlock(InType0,InType1,OutType,ScalarType,GetterName,SetterName,Fcn) \
     if(doesDTypeMatch<InType0>(inDType0) && doesDTypeMatch<InType1>(inDType1) && doesDTypeMatch<OutType>(outDType) && doesDTypeMatch<ScalarType>(scalarDType)) \
@@ -48,7 +51,6 @@
             Fcn, \
             GetterName, \
             SetterName);
-
 
 //
 // /volk/acos
@@ -73,85 +75,6 @@ static Pothos::BlockRegistry registerVOLKACos(
         .bind(volk_32f_acos_32f, 0));
 
 //
-// /volk/asin
-//
-
-/***********************************************************************
- * |PothosDoc ASin (VOLK)
- *
- * <p>
- * Underlying function: <b>volk_32f_asin_32f</b>
- * </p>
- *
- * |category /Math
- * |category /VOLK
- * |keywords math trig
- *
- * |factory /volk/asin()
- **********************************************************************/
-static Pothos::BlockRegistry registerVOLKASin(
-    "/volk/asin",
-    Pothos::Callable(OneToOneBlock<float,float>::make)
-        .bind(volk_32f_asin_32f, 0));
-
-//
-// /volk/atan
-//
-
-/***********************************************************************
- * |PothosDoc ATan (VOLK)
- *
- * <p>
- * Underlying function: <b>volk_32f_atan_32f</b>
- * </p>
- *
- * |category /Math
- * |category /VOLK
- * |keywords math trig
- *
- * |factory /volk/atan()
- **********************************************************************/
-static Pothos::BlockRegistry registerVOLKATan(
-    "/volk/atan",
-    Pothos::Callable(OneToOneBlock<float,float>::make)
-        .bind(volk_32f_atan_32f, 0));
-
-//
-// /volk/atan2
-//
-
-/***********************************************************************
- * |PothosDoc ATan2 (VOLK)
- *
- * <p>
- * Computes arctangent operation and applies a normalization factor.
- * </p>
- *
- * <p>
- * Underlying function: <b>volk_32fc_s32f_atan2_32f</b>
- * </p>
- *
- * |category /Math
- * |category /VOLK
- * |keywords math trig
- *
- * |param normalizeFactor[Normalize Factor]
- * A value multiplied to all <b>atan2</b> outputs.
- * |widget DoubleSpinBox(decimals=3)
- * |default 1.0
- * |preview enable
- *
- * |factory /volk/atan2()
- * |setter setNormalizeFactor(normalizeFactor)
- **********************************************************************/
-static Pothos::BlockRegistry registerVOLKATan2(
-    "/volk/atan2",
-    Pothos::Callable(OneToOneScalarParamBlock<std::complex<float>,float,float>::make)
-        .bind(volk_32fc_s32f_atan2_32f, 0)
-        .bind("normalizeFactor", 1)
-        .bind("setNormalizeFactor", 2));
-
-//
 // /volk/add
 //
 
@@ -162,11 +85,14 @@ static Pothos::Block* makeAdd(
     const Pothos::DType& inDType1,
     const Pothos::DType& outDType)
 {
-    IfTypesThenTwoToOneBlock(float,float,float,volk_32f_x2_add_32f)
-    IfTypesThenTwoToOneBlock(float,double,double,volk_32f_64f_add_64f)
-    IfTypesThenTwoToOneBlock(double,double,double,volk_64f_x2_add_64f)
-    IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_add_32fc)
-    IfTypesThenTwoToOneBlock(std::complex<float>,float,std::complex<float>,volk_32fc_32f_add_32fc)
+#define IfTypesThenAdd(in0,in1,out,fcn) \
+    IfTypesThenTwoToOneBlock(in0,in1,out,size_t,fcn,0,1)
+
+    IfTypesThenAdd(float,float,float,volk_32f_x2_add_32f)
+    IfTypesThenAdd(float,double,double,volk_32f_64f_add_64f)
+    IfTypesThenAdd(double,double,double,volk_64f_x2_add_64f)
+    IfTypesThenAdd(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_add_32fc)
+    IfTypesThenAdd(std::complex<float>,float,std::complex<float>,volk_32fc_32f_add_32fc)
 
     throw InvalidDTypeException(
         VOLKAddPath,
@@ -266,8 +192,10 @@ static Pothos::BlockRegistry registerVOLKAddScalar(
  **********************************************************************/
 static Pothos::BlockRegistry registerVOLKAnd(
     "/volk/and",
-    Pothos::Callable(TwoToOneBlock<int,int,int>::make)
-        .bind(volk_32i_x2_and_32i, 0));
+    Pothos::Callable(TwoToOneBlock<int,int,int,size_t>::make)
+        .bind(volk_32i_x2_and_32i, 0)
+        .bind(0, 1)
+        .bind(1, 2));
 
 //
 // /volk/binary_slicer
@@ -287,6 +215,85 @@ static Pothos::Block* makeBinarySlicer(
         inDType,
         outDType);
 }
+
+//
+// /volk/asin
+//
+
+/***********************************************************************
+ * |PothosDoc ASin (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_32f_asin_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math trig
+ *
+ * |factory /volk/asin()
+ **********************************************************************/
+static Pothos::BlockRegistry registerVOLKASin(
+    "/volk/asin",
+    Pothos::Callable(OneToOneBlock<float,float>::make)
+        .bind(volk_32f_asin_32f, 0));
+
+//
+// /volk/atan
+//
+
+/***********************************************************************
+ * |PothosDoc ATan (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_32f_atan_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math trig
+ *
+ * |factory /volk/atan()
+ **********************************************************************/
+static Pothos::BlockRegistry registerVOLKATan(
+    "/volk/atan",
+    Pothos::Callable(OneToOneBlock<float,float>::make)
+        .bind(volk_32f_atan_32f, 0));
+
+//
+// /volk/atan2
+//
+
+/***********************************************************************
+ * |PothosDoc ATan2 (VOLK)
+ *
+ * <p>
+ * Computes arctangent operation and applies a normalization factor.
+ * </p>
+ *
+ * <p>
+ * Underlying function: <b>volk_32fc_s32f_atan2_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math trig
+ *
+ * |param normalizeFactor[Normalize Factor]
+ * A value multiplied to all <b>atan2</b> outputs.
+ * |widget DoubleSpinBox(decimals=3)
+ * |default 1.0
+ * |preview enable
+ *
+ * |factory /volk/atan2()
+ * |setter setNormalizeFactor(normalizeFactor)
+ **********************************************************************/
+static Pothos::BlockRegistry registerVOLKATan2(
+    "/volk/atan2",
+    Pothos::Callable(OneToOneScalarParamBlock<std::complex<float>,float,float>::make)
+        .bind(volk_32fc_s32f_atan2_32f, 0)
+        .bind("normalizeFactor", 1)
+        .bind("setNormalizeFactor", 2));
 
 /***********************************************************************
  * |PothosDoc Binary Slicer (VOLK)
@@ -635,10 +642,13 @@ static Pothos::Block* makeDeinterleave(
     const Pothos::DType& inDType,
     const Pothos::DType& outDType)
 {
-    IfTypesThenOneToTwoBlock(std::complex<int8_t>,int16_t,volk_8ic_deinterleave_16i_x2)
-    IfTypesThenOneToTwoBlock(std::complex<int16_t>,int16_t,volk_16ic_deinterleave_16i_x2)
-    IfTypesThenOneToTwoBlock(std::complex<float>,float,volk_32fc_deinterleave_32f_x2)
-    IfTypesThenOneToTwoBlock(std::complex<float>,double,volk_32fc_deinterleave_64f_x2)
+#define IfTypesThenDeinterleave(InType,OutType,Fcn) \
+    IfTypesThenOneToTwoBlock(InType,OutType,std::string,Fcn,"real","imag")
+
+    IfTypesThenDeinterleave(std::complex<int8_t>,int16_t,volk_8ic_deinterleave_16i_x2)
+    IfTypesThenDeinterleave(std::complex<int16_t>,int16_t,volk_16ic_deinterleave_16i_x2)
+    IfTypesThenDeinterleave(std::complex<float>,float,volk_32fc_deinterleave_32f_x2)
+    IfTypesThenDeinterleave(std::complex<float>,double,volk_32fc_deinterleave_64f_x2)
 
     throw InvalidDTypeException(
         VOLKDeinterleavePath,
@@ -936,8 +946,11 @@ static Pothos::Block* makeDeinterleaveScaled(
     const Pothos::DType& outDType,
     const Pothos::DType& scalarDType)
 {
-    IfTypesThenOneToTwoScalarParamBlock(std::complex<int8_t>,float,float,"scalar","setScalar",volk_8ic_s32f_deinterleave_32f_x2)
-    IfTypesThenOneToTwoScalarParamBlock(std::complex<int16_t>,float,float,"scalar","setScalar",volk_16ic_s32f_deinterleave_32f_x2)
+#define IfTypesThenDeinterleaveScaled(InType,OutType,Fcn) \
+    IfTypesThenOneToTwoScalarParamBlock(InType,OutType,float,std::string,"scalar","setScalar",Fcn,"real","imag")
+
+    IfTypesThenDeinterleaveScaled(std::complex<int8_t>,float,volk_8ic_s32f_deinterleave_32f_x2)
+    IfTypesThenDeinterleaveScaled(std::complex<int16_t>,float,volk_16ic_s32f_deinterleave_32f_x2)
 
     throw InvalidDTypeException(
         VOLKDeinterleaveScaledPath,
@@ -1018,8 +1031,11 @@ static Pothos::Block* makeDivide(
     const Pothos::DType& inDType1,
     const Pothos::DType& outDType)
 {
-    IfTypesThenTwoToOneBlock(float,float,float,volk_32f_x2_divide_32f)
-    IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_divide_32fc)
+#define IfTypeThenDivide(T,fcn) \
+    IfTypesThenTwoToOneBlock(T,T,T,size_t,fcn,0,1)
+
+    IfTypeThenDivide(float,volk_32f_x2_divide_32f)
+    IfTypeThenDivide(std::complex<float>,volk_32fc_x2_divide_32fc)
 
     throw InvalidDTypeException(
         VOLKDividePath,
@@ -1074,8 +1090,8 @@ static Pothos::Block* makeExp(const std::string& mode)
 {
     OneToOneFcn<float,float> volkFcn = nullptr;
 
-    if(mode == "PRECISE")   volkFcn = ::volk_32f_exp_32f;
-    else if(mode == "FAST") volkFcn = ::volk_32f_expfast_32f;
+    if(mode == "PRECISE")   volkFcn = volk_32f_exp_32f;
+    else if(mode == "FAST") volkFcn = volk_32f_expfast_32f;
     else throw Pothos::InvalidArgumentException(VOLKExpPath + " mode: " + mode);
 
     assert(volkFcn);
@@ -1134,8 +1150,10 @@ static Pothos::BlockRegistry registerVOLKExp(
  **********************************************************************/
 static Pothos::BlockRegistry registerVOLKInterleave(
     "/volk/interleave",
-    Pothos::Callable(TwoToOneBlock<float,float,std::complex<float>>::make)
-        .bind(volk_32f_x2_interleave_32fc, 0));
+    Pothos::Callable(TwoToOneBlock<float,float,std::complex<float>,std::string>::make)
+        .bind(volk_32f_x2_interleave_32fc, 0)
+        .bind("real", 1)
+        .bind("imag", 2));
 
 //
 // /volk/interleave_scaled
@@ -1165,15 +1183,19 @@ static Pothos::BlockRegistry registerVOLKInterleave(
  **********************************************************************/
 static Pothos::BlockRegistry registerVOLKInterleaveScaled(
     "/volk/interleave_scaled",
-    Pothos::Callable(TwoToOneScalarParamBlock<float,float,std::complex<int16_t>,float>::make)
-        .bind(volk_32f_x2_s32f_interleave_16ic, 0));
+    Pothos::Callable(TwoToOneScalarParamBlock<float,float,std::complex<int16_t>,float,std::string>::make)
+        .bind(volk_32f_x2_s32f_interleave_16ic, 0)
+        .bind("scalar", 1)
+        .bind("setScalar", 2)
+        .bind("real", 3)
+        .bind("imag", 4));
 
 //
 // /volk/invsqrt
 //
 
 /***********************************************************************
- * |PothosDoc Interleave (VOLK)
+ * |PothosDoc Inverse Square Root (VOLK)
  *
  * <p>
  * Underlying function: <b>volk_32f_invsqrt_32f</b>
@@ -1288,8 +1310,11 @@ static const std::string VOLKMaxPath = "/volk/max";
 
 static Pothos::Block* makeMax(const Pothos::DType& dtype)
 {
-    IfTypeThenTwoToOneBlock(float,volk_32f_x2_max_32f)
-    IfTypeThenTwoToOneBlock(double,volk_64f_x2_max_64f)
+#define IfTypeThenMax(T,fcn) \
+    IfTypeThenTwoToOneBlock(T,size_t,fcn,0,1)
+
+    IfTypeThenMax(float,volk_32f_x2_max_32f)
+    IfTypeThenMax(double,volk_64f_x2_max_64f)
 
     throw InvalidDTypeException(VOLKMaxPath, dtype);
 }
@@ -1319,7 +1344,7 @@ static Pothos::Block* makeMax(const Pothos::DType& dtype)
  * |default "float32"
  * |preview disable
  *
- * |factory /volk/magnitude(inputDType,outputDType)
+ * |factory /volk/max(inputDType,outputDType)
  **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMax(
     VOLKMaxPath,
@@ -1348,8 +1373,11 @@ static const std::string VOLKMinPath = "/volk/min";
 
 static Pothos::Block* makeMin(const Pothos::DType& dtype)
 {
-    IfTypeThenTwoToOneBlock(float,volk_32f_x2_min_32f)
-    IfTypeThenTwoToOneBlock(double,volk_64f_x2_min_64f)
+#define IfTypeThenMin(T,fcn) \
+    IfTypeThenTwoToOneBlock(T,size_t,fcn,0,1)
+
+    IfTypeThenMin(float,volk_32f_x2_min_32f)
+    IfTypeThenMin(double,volk_64f_x2_min_64f)
 
     throw InvalidDTypeException(VOLKMinPath, dtype);
 }
@@ -1369,11 +1397,14 @@ static Pothos::Block* makeMultiply(
     const Pothos::DType& inDType1,
     const Pothos::DType& outDType)
 {
-    IfTypesThenTwoToOneBlock(float,double,double,volk_32f_64f_multiply_64f)
-    IfTypesThenTwoToOneBlock(double,double,double,volk_64f_x2_multiply_64f)
-    IfTypesThenTwoToOneBlock(std::complex<int16_t>,std::complex<int16_t>,std::complex<int16_t>,volk_16ic_x2_multiply_16ic)
-    IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_32fc)
-    IfTypesThenTwoToOneBlock(std::complex<float>,float,std::complex<float>,volk_32fc_32f_multiply_32fc)
+#define IfTypesThenMultiply(InType0,InType1,OutType,fcn) \
+    IfTypesThenTwoToOneBlock(InType0,InType1,OutType,size_t,fcn,0,1)
+
+    IfTypesThenMultiply(float,double,double,volk_32f_64f_multiply_64f)
+    IfTypesThenMultiply(double,double,double,volk_64f_x2_multiply_64f)
+    IfTypesThenMultiply(std::complex<int16_t>,std::complex<int16_t>,std::complex<int16_t>,volk_16ic_x2_multiply_16ic)
+    IfTypesThenMultiply(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_32fc)
+    IfTypesThenMultiply(std::complex<float>,float,std::complex<float>,volk_32fc_32f_multiply_32fc)
 
     throw InvalidDTypeException(
         VOLKMultiplyPath,
@@ -1396,8 +1427,11 @@ static Pothos::Block* makeMultiplyConjugate(
     const Pothos::DType& inDType1,
     const Pothos::DType& outDType)
 {
-    IfTypesThenTwoToOneBlock(std::complex<int8_t>,std::complex<int8_t>,std::complex<int16_t>,volk_8ic_x2_multiply_conjugate_16ic)
-    IfTypesThenTwoToOneBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_conjugate_32fc)
+#define IfTypesThenMultiplyConjugate(InType0,InType1,OutType,fcn) \
+    IfTypesThenTwoToOneBlock(InType0,InType1,OutType,size_t,fcn,0,1)
+
+    IfTypesThenMultiplyConjugate(std::complex<int8_t>,std::complex<int8_t>,std::complex<int16_t>,volk_8ic_x2_multiply_conjugate_16ic)
+    IfTypesThenMultiplyConjugate(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_x2_multiply_conjugate_32fc)
 
     throw InvalidDTypeException(
         VOLKMultiplyConjugatePath,
@@ -1415,10 +1449,12 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
 
 static Pothos::BlockRegistry registerVOLKMultiplyConjugateAdd(
     "/volk/multiply_conjugate_add",
-    Pothos::Callable(TwoToOneScalarParamBlock<std::complex<float>,std::complex<float>,std::complex<float>,std::complex<float>>::make)
+    Pothos::Callable(TwoToOneScalarParamBlock<std::complex<float>,std::complex<float>,std::complex<float>,std::complex<float>,size_t>::make)
         .bind(volk_32fc_x2_s32fc_multiply_conjugate_add_32fc, 0)
         .bind("scalar", 1)
-        .bind("setScalar", 2));
+        .bind("setScalar", 2)
+        .bind(0, 3)
+        .bind(1, 4));
 
 //
 // /volk/multiply_conjugate_scaled
@@ -1426,10 +1462,12 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugateAdd(
 
 static Pothos::BlockRegistry registerVOLKMultiplyConjugateScaled(
     "/volk/multiply_conjugate_scaled",
-    Pothos::Callable(TwoToOneScalarParamBlock<std::complex<int8_t>,std::complex<int8_t>,std::complex<float>,float>::make)
+    Pothos::Callable(TwoToOneScalarParamBlock<std::complex<int8_t>,std::complex<int8_t>,std::complex<float>,float,size_t>::make)
         .bind(volk_8ic_x2_s32f_multiply_conjugate_32fc, 0)
         .bind("scalar", 1)
-        .bind("setScalar", 2));
+        .bind("setScalar", 2)
+        .bind(0, 3)
+        .bind(1, 4));
 
 //
 // /volk/multiply_scalar
@@ -1442,11 +1480,11 @@ static Pothos::Block* makeMultiplyScalar(
     const Pothos::DType& outDType,
     const Pothos::DType& scalarDType)
 {
-    #define IfTypesThenMultiplyScalarBlock(InType,OutType,ScalarType,Fcn) \
+    #define IfTypesThenMultiplyScalar(InType,OutType,ScalarType,Fcn) \
         IfTypesThenOneToOneScalarParamBlock(InType,OutType,ScalarType,"scalar","setScalar",Fcn)
 
-    IfTypesThenMultiplyScalarBlock(float,float,float,volk_32f_s32f_multiply_32f)
-    IfTypesThenMultiplyScalarBlock(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_s32fc_multiply_32fc)
+    IfTypesThenMultiplyScalar(float,float,float,volk_32f_s32f_multiply_32f)
+    IfTypesThenMultiplyScalar(std::complex<float>,std::complex<float>,std::complex<float>,volk_32fc_s32fc_multiply_32fc)
 
     throw InvalidDTypeException(
         VOLKConvertPath,
@@ -1475,8 +1513,10 @@ static Pothos::BlockRegistry registerVOLKNormalize(
 
 static Pothos::BlockRegistry registerVOLKOr(
     "/volk/or",
-    Pothos::Callable(TwoToOneBlock<int,int,int>::make)
-        .bind(volk_32i_x2_or_32i, 0));
+    Pothos::Callable(TwoToOneBlock<int,int,int,size_t>::make)
+        .bind(volk_32i_x2_or_32i, 0)
+        .bind(0, 1)
+        .bind(1, 2));
 
 //
 // /volk/pow
@@ -1485,8 +1525,10 @@ static Pothos::BlockRegistry registerVOLKOr(
 #warning TODO: inputs are unclear, use string port names
 static Pothos::BlockRegistry registerVOLKPow(
     "/volk/pow",
-    Pothos::Callable(TwoToOneBlock<float,float,float>::make)
-        .bind(volk_32f_x2_pow_32f, 0));
+    Pothos::Callable(TwoToOneBlock<float,float,float,std::string>::make)
+        .bind(volk_32f_x2_pow_32f, 0)
+        .bind("exponent", 1)
+        .bind("input", 2));
 
 //
 // /volk/power
@@ -1543,8 +1585,10 @@ static Pothos::BlockRegistry registerVOLKSqrt(
 
 static Pothos::BlockRegistry registerVOLKSubtract(
     "/volk/subtract",
-    Pothos::Callable(TwoToOneBlock<float,float,float>::make)
-        .bind(volk_32f_x2_subtract_32f, 0));
+    Pothos::Callable(TwoToOneBlock<float,float,float,size_t>::make)
+        .bind(volk_32f_x2_subtract_32f, 0)
+        .bind(0, 1)
+        .bind(1, 2));
 
 //
 // /volk/tan
