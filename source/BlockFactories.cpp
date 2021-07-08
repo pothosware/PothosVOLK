@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#warning TODO: consistency in future-proofing with type parameters
+
 #define IfTypesThenOneToOneBlock(InType,OutType,fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToOneBlock<InType, OutType>::make(fcn);
@@ -1327,24 +1329,19 @@ static Pothos::Block* makeMax(const Pothos::DType& dtype)
  * </p>
  *
  * <ul>
- * <li><b>volk_32fc_magnitude_32f</b></li>
- * <li><b>volk_64fc_magnitude_64f</b></li>
+ * <li><b>volk_32f_x2_max_32f</b></li>
+ * <li><b>volk_64f_x2_max_64f</b></li>
  * </ul>
  *
  * |category /Stream
  * |category /VOLK
  *
- * |param inputDType[Data Type In]
+ * |param dtype[Data Type]
  * |widget DTypeChooser(float=1)
  * |default "float32"
  * |preview disable
  *
- * |param outputDType[Data Type Out]
- * |widget DTypeChooser(float=1)
- * |default "float32"
- * |preview disable
- *
- * |factory /volk/max(inputDType,outputDType)
+ * |factory /volk/max(dtype)
  **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMax(
     VOLKMaxPath,
@@ -1360,6 +1357,17 @@ static const auto VOLKMaxStar = [](int16_t* out, const int16_t* in, unsigned int
 
 static const std::string VOLKMaxStarPath = "/volk/max_star_horizontal_path";
 
+/***********************************************************************
+ * |PothosDoc Max* (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_16i_max_star_horizontal_16i</b>
+ * </p>
+ *
+ * |category /VOLK
+ *
+ * |factory /volk/max_star()
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMaxStarPath(
     "/volk/max_star",
     Pothos::Callable(OneToOneBlock<int16_t,int16_t>::make)
@@ -1382,6 +1390,28 @@ static Pothos::Block* makeMin(const Pothos::DType& dtype)
     throw InvalidDTypeException(VOLKMinPath, dtype);
 }
 
+/***********************************************************************
+ * |PothosDoc Min (VOLK)
+ *
+ * <p>
+ * Underlying functions:
+ * </p>
+ *
+ * <ul>
+ * <li><b>volk_32f_x2_min_32f</b></li>
+ * <li><b>volk_64f_x2_min_64f</b></li>
+ * </ul>
+ *
+ * |category /Stream
+ * |category /VOLK
+ *
+ * |param dtype[Data Type]
+ * |widget DTypeChooser(float=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |factory /volk/min(dtype)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMin(
     VOLKMinPath,
     &makeMin);
@@ -1412,6 +1442,42 @@ static Pothos::Block* makeMultiply(
         outDType);
 }
 
+/***********************************************************************
+ * |PothosDoc Multiply (VOLK)
+ *
+ * <p>
+ * Underlying functions:
+ * </p>
+ *
+ * <ul>
+ * <li><b>volk_32f_64f_multiply_64f</b></li>
+ * <li><b>volk_64f_x2_multiply_64f</b></li>
+ * <li><b>volk_16ic_x2_multiply_16ic</b></li>
+ * <li><b>volk_32fc_x2_multiply_32fc</b></li>
+ * <li><b>volk_32fc_32f_multiply_32fc</b></li>
+ * </ul>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math plus
+ *
+ * |param input0DType[Data Type In0]
+ * |widget DTypeChooser(float=1,cint16=1,cfloat32=1)
+ * |default "float64"
+ * |preview disable
+ *
+ * |param input1DType[Data Type In1]
+ * |widget DTypeChooser(float=1,cint16=1,cfloat32=1)
+ * |default "float64"
+ * |preview disable
+ *
+ * |param outputDType[Data Type Out]
+ * |widget DTypeChooser(float64=1,cint16=1,cfloat32=1)
+ * |default "float64"
+ * |preview disable
+ *
+ * |factory /volk/multiply(input0DType,input1DType,outputDType)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMultiply(
     VOLKMultiplyPath,
     &makeMultiply);
@@ -1439,6 +1505,44 @@ static Pothos::Block* makeMultiplyConjugate(
         outDType);
 }
 
+/***********************************************************************
+ * |PothosDoc Multiply Conjugate (VOLK)
+ *
+ * <p>
+ * For each input pair, multiplies the first number by the complex
+ * conjugate of the second number.
+ * </p>
+ *
+ * <p>
+ * Underlying functions:
+ * </p>
+ *
+ * <ul>
+ * <li><b>volk_8ic_x2_multiply_conjugate_16ic</b></li>
+ * <li><b>volk_32fc_x2_multiply_conjugate_32fc</b></li>
+ * </ul>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math complex
+ *
+ * |param input0DType[Data Type In0]
+ * |widget DTypeChooser(cint8=1,cfloat32=1)
+ * |default "complex_float32"
+ * |preview disable
+ *
+ * |param input1DType[Data Type In1]
+ * |widget DTypeChooser(cint8=1,cfloat32=1)
+ * |default "complex_float32"
+ * |preview disable
+ *
+ * |param outputDType[Data Type Out]
+ * |widget DTypeChooser(cint16=1,cfloat32=1)
+ * |default "complex_float32"
+ * |preview disable
+ *
+ * |factory /volk/multiply_conjugate(input0DType,input1DType,outputDType)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
     VOLKMultiplyConjugatePath,
     &makeMultiplyConjugate);
@@ -1447,6 +1551,31 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
 // /volk/multiply_conjugate_add
 //
 
+/***********************************************************************
+ * |PothosDoc Multiply Conjugate Add (VOLK)
+ *
+ * <p>
+ * Add each element of the first vector to the complex conjugate of its
+ * corresponding value in the second vector (multiplied by a given constant).
+ * </p>
+ *
+ * <p>
+ * Underlying function: <b>volk_32fc_x2_s32fc_multiply_conjugate_add_32fc</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords complex real imag
+ *
+ * |param scalar[Complex Scalar]
+ * A complex value to apply to each input of the second vector.
+ * |widget LineEdit()
+ * |default 1.0+0i
+ * |preview enable
+ *
+ * |factory /volk/multiply_conjugate_add()
+ * |setter setScalar(scalar)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMultiplyConjugateAdd(
     "/volk/multiply_conjugate_add",
     Pothos::Callable(TwoToOneScalarParamBlock<std::complex<float>,std::complex<float>,std::complex<float>,std::complex<float>,size_t>::make)
@@ -1460,6 +1589,31 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugateAdd(
 // /volk/multiply_conjugate_scaled
 //
 
+/***********************************************************************
+ * |PothosDoc Multiply Conjugate (Custom Scalar) (VOLK)
+ *
+ * <p>
+ * For each input pair, multiplies the first number by the scaled complex
+ * conjugate of the second number.
+ * </p>
+ *
+ * <p>
+ * Underlying function: <b>volk_8ic_x2_s32f_multiply_conjugate_32fc</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math complex
+ *
+ * |param scalar[Scalar]
+ * A constant value multiplied with all values in the second vector.
+ * |widget DoubleSpinBox(decimals=3)
+ * |default 0.0
+ * |preview enable
+ *
+ * |factory /volk/multiply_conjugate_scaled()
+ * |setter setScalar(scalar)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKMultiplyConjugateScaled(
     "/volk/multiply_conjugate_scaled",
     Pothos::Callable(TwoToOneScalarParamBlock<std::complex<int8_t>,std::complex<int8_t>,std::complex<float>,float,size_t>::make)
@@ -1522,7 +1676,6 @@ static Pothos::BlockRegistry registerVOLKOr(
 // /volk/pow
 //
 
-#warning TODO: inputs are unclear, use string port names
 static Pothos::BlockRegistry registerVOLKPow(
     "/volk/pow",
     Pothos::Callable(TwoToOneBlock<float,float,float,std::string>::make)
