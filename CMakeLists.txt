@@ -36,6 +36,7 @@ set(sources
     source/Byteswap.cpp
     source/ModRange.cpp
     source/Module.cpp
+    source/Normalize.cpp
     source/PopCnt.cpp
     source/PowerSpectralDensity.cpp
     source/QuadMaxStar.cpp

@@ -728,7 +728,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_pow)
         {0.5f, 1.0f, 1.5f,     2.0f,  2.5f},
         {1.0f, 1.5f, 2.0f,     2.5f,  3.0f},
         {1.0f, 1.5f, 2.82843f, 6.25f, 15.58846f},
-        "exponent",
+        "exp",
         "input",
         true);
 }
