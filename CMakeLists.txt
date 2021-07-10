@@ -42,7 +42,6 @@ set(sources
     source/QuadMaxStar.cpp
     source/SharedBufferAllocator.cpp
     source/SquareDist.cpp
-    source/SquareDistScalarMult.cpp
 
     tests/BlockTests.cpp)
 

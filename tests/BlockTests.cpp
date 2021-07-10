@@ -765,6 +765,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_sin)
 POTHOS_TEST_BLOCK("/volk/tests", test_square_dist)
 {
     auto squareDist = Pothos::BlockRegistry::make("/volk/square_dist");
+    POTHOS_TEST_CLOSE(1.0f, squareDist.call<float>("scalar"), 1e-6f);
 
     const std::complex<float> complexInput{0.5f, 2.0f};
     squareDist.call("setComplexInput", complexInput);
@@ -790,13 +791,26 @@ POTHOS_TEST_BLOCK("/volk/tests", test_square_dist)
         expectedOutputs[i] = std::pow(diff.real(), 2.0f) + std::pow(diff.imag(), 2.0f);
     }
 
+    std::cout << " * Testing with no scaling..." << std::endl;
+
+    VOLKTests::testOneToOneBlock<std::complex<float>,float>(
+        squareDist,
+        inputs,
+        expectedOutputs);
+
+    std::cout << " * Testing with scaling..." << std::endl;
+
+    constexpr float scalar = 10.0f;
+    for(auto& expectedOutput: expectedOutputs) expectedOutput *= scalar;
+
+    squareDist.call("setScalar", scalar);
+    POTHOS_TEST_CLOSE(scalar, squareDist.call<float>("scalar"), 1e-6f);
+
     VOLKTests::testOneToOneBlock<std::complex<float>,float>(
         squareDist,
         inputs,
         expectedOutputs);
 }
-
-// TODO: /volk/square_dist_scalar_mult
 
 //
 // /volk/sqrt
