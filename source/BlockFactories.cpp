@@ -11,8 +11,6 @@
 #include <string>
 #include <vector>
 
-#warning TODO: consistency in future-proofing with type parameters
-
 #define IfTypesThenOneToOneBlock(InType,OutType,fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
         return OneToOneBlock<InType, OutType>::make(fcn);
@@ -514,7 +512,7 @@ static Pothos::Block* makeConvertScaled(
 {
 #define IfTypesThenConvertScaledBlock(InType,OutType,Fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
-        return new OneToOneScalarParamBlock<InType,OutType,float>( \
+        return OneToOneScalarParamBlock<InType,OutType,float>::make( \
             Fcn, \
             "scalar", \
             "setScalar");
@@ -817,16 +815,16 @@ static Pothos::Block* makeDeinterleaveRealScaled(
     const Pothos::DType& inDType,
     const Pothos::DType& outDType)
 {
-#define IfTypesThenDeinterleavedScaledBlock(InType,OutType,Fcn) \
+#define IfTypesThenDeinterleaveRealScaledBlock(InType,OutType,Fcn) \
     if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
-        return new OneToOneScalarParamBlock<InType,OutType,float>( \
+        return OneToOneScalarParamBlock<InType,OutType,float>::make( \
             Fcn, \
             "scalar", \
             "setScalar");
 
-    IfTypesThenDeinterleavedScaledBlock(std::complex<int8_t>,float,volk_8ic_s32f_deinterleave_real_32f)
-    IfTypesThenDeinterleavedScaledBlock(std::complex<int16_t>,float,volk_16ic_s32f_deinterleave_real_32f)
-    IfTypesThenDeinterleavedScaledBlock(std::complex<float>,int16_t,volk_32fc_s32f_deinterleave_real_16i)
+    IfTypesThenDeinterleaveRealScaledBlock(std::complex<int8_t>,float,volk_8ic_s32f_deinterleave_real_32f)
+    IfTypesThenDeinterleaveRealScaledBlock(std::complex<int16_t>,float,volk_16ic_s32f_deinterleave_real_32f)
+    IfTypesThenDeinterleaveRealScaledBlock(std::complex<float>,int16_t,volk_32fc_s32f_deinterleave_real_16i)
 
     throw InvalidDTypeException(
         VOLKDeinterleaveRealScaledPath,
@@ -882,7 +880,7 @@ static Pothos::BlockRegistry registerVOLKDeinterleaveRealScaled(
  * |preview disable
  *
  * |param scalar[Scalar] A scalar to apply to each input post-conversion.
- * |widget LineEdit()
+ * |widget DoubleSpinBox(decimals=3)
  * |default 1.0
  * |preview enable
  *
@@ -893,20 +891,24 @@ static const std::string VOLKDeinterleaveScaledPath = "/volk/deinterleave_scaled
 
 static Pothos::Block* makeDeinterleaveScaled(
     const Pothos::DType& inDType,
-    const Pothos::DType& outDType,
-    const Pothos::DType& scalarDType)
+    const Pothos::DType& outDType)
 {
-#define IfTypesThenDeinterleaveScaled(InType,OutType,Fcn) \
-    IfTypesThenOneToTwoScalarParamBlock(InType,OutType,float,std::string,"scalar","setScalar",Fcn,"real","imag")
+#define IfTypesThenDeinterleaveScaledBlock(InType,OutType,Fcn) \
+    if(doesDTypeMatch<InType>(inDType) && doesDTypeMatch<OutType>(outDType)) \
+        return OneToTwoScalarParamBlock<InType,OutType,OutType,float,std::string>::make( \
+            Fcn, \
+            "scalar", \
+            "setScalar", \
+            "real", \
+            "imag");
 
-    IfTypesThenDeinterleaveScaled(std::complex<int8_t>,float,volk_8ic_s32f_deinterleave_32f_x2)
-    IfTypesThenDeinterleaveScaled(std::complex<int16_t>,float,volk_16ic_s32f_deinterleave_32f_x2)
+    IfTypesThenDeinterleaveScaledBlock(std::complex<int8_t>,float,volk_8ic_s32f_deinterleave_32f_x2)
+    IfTypesThenDeinterleaveScaledBlock(std::complex<int16_t>,float,volk_16ic_s32f_deinterleave_32f_x2)
 
     throw InvalidDTypeException(
         VOLKDeinterleaveScaledPath,
         inDType,
-        outDType,
-        scalarDType);
+        outDType);
 }
 
 static Pothos::BlockRegistry registerVOLKDeinterleaveScaled(
@@ -1274,7 +1276,7 @@ static Pothos::BlockRegistry registerVOLKMin(
  *
  * |category /Math
  * |category /VOLK
- * |keywords math plus
+ * |keywords math
  *
  * |param input0DType[Data Type In0]
  * |widget DTypeChooser(float=1,cint16=1,cfloat32=1)
@@ -1463,7 +1465,7 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugateScaled(
  * |category /VOLK
  * |keywords math constant
  *
- * |param inputDType[Data Type]
+ * |param dtype[Data Type]
  * |widget DTypeChooser(float32=1,cfloat32=1)
  * |default "float32"
  * |preview disable

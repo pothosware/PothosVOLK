@@ -100,7 +100,7 @@ void SquareDistScalarMult::work()
  * </p>
  *
  * <p>
- * Underlying function: <b>volk_32fc_x2_square_dist_32f</b>
+ * Underlying function: <b>volk_32fc_x2_s32f_square_dist_scalar_mult_32f</b>
  * </p>
  *
  * |category /Math
