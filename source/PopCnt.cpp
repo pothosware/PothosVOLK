@@ -60,7 +60,7 @@ void PopCnt::work()
 }
 
 /***********************************************************************
- * |PothosDoc PopCnt (VOLK)
+ * |PothosDoc Population Count (VOLK)
  *
  * <p>
  * For each element, output the population count (or Hamming distance).

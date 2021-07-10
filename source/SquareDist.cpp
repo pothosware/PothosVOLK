@@ -77,10 +77,30 @@ void SquareDist::work()
     output->produce(elems);
 }
 
-//
-// Factory
-//
-
+/***********************************************************************
+ * |PothosDoc Square Distance (VOLK)
+ *
+ * <p>
+ * Calculates the square distance between a single complex input for
+ * each point in a complex vector.
+ * </p>
+ *
+ * <p>
+ * Underlying function: <b>volk_32fc_x2_square_dist_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math complex
+ *
+ * |param complexInput[Complex Input]
+ * |widget LineEdit()
+ * |default 1+0i
+ * |preview enable
+ *
+ * |factory /volk/square_dist()
+ * |setter setComplexInput(complexInput)
+ **********************************************************************/
 static Pothos::BlockRegistry registerSquareDist(
     "/volk/square_dist",
     &SquareDist::make);

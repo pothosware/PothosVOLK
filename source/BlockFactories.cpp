@@ -1767,6 +1767,10 @@ static Pothos::BlockRegistry registerVOLKTan(
  * |PothosDoc TanH (VOLK)
  *
  * <p>
+ * Calculates the hyperbolic tangent of each input.
+ * </p>
+ *
+ * <p>
  * Underlying function: <b>volk_32f_tanh_32f</b>
  * </p>
  *

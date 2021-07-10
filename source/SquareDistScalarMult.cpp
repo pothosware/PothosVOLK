@@ -91,10 +91,37 @@ void SquareDistScalarMult::work()
     output->produce(elems);
 }
 
-//
-// Factory
-//
-
+/***********************************************************************
+ * |PothosDoc Square Distance (Scaled) (VOLK)
+ *
+ * <p>
+ * Calculates the square distance between a single complex input for
+ * each point in a complex vector scaled by a given scalar value.
+ * </p>
+ *
+ * <p>
+ * Underlying function: <b>volk_32fc_x2_square_dist_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math complex
+ *
+ * |param complexInput[Complex Input]
+ * |widget LineEdit()
+ * |default 1+0i
+ * |preview enable
+ *
+ * |param scalar[Scalar]
+ * A value multiplied by each square distance to form the final output.
+ * |widget DoubleSpinBox(decimals=3)
+ * |default 1.0
+ * |preview enable
+ *
+ * |factory /volk/square_dist_scalar_mult()
+ * |setter setComplexInput(complexInput)
+ * |setter setScalar(scalar)
+ **********************************************************************/
 static Pothos::BlockRegistry registerSquareDistScalarMult(
     "/volk/square_dist_scalar_mult",
     &SquareDistScalarMult::make);
