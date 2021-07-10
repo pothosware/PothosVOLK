@@ -157,32 +157,17 @@ POTHOS_TEST_BLOCK("/volk/tests", test_atan)
 // /volk/binary_slicer
 //
 
-template <typename OutputType>
-static void testBinarySlicer()
+POTHOS_TEST_BLOCK("/volk/tests", test_binary_slicer)
 {
-    const auto outputDType = Pothos::DType(typeid(OutputType));
+    std::vector<float> inputs           = {-10.0f, -5.0f, 0.0f, 5.0f, 10.0f};
+    std::vector<int8_t> expectedOutputs = {0, 0, 1, 1, 1};
 
-    std::cout << " * Testing float32 -> " << outputDType.name()
-              << "..." << std::endl;
+    auto binarySlicerBlock = Pothos::BlockRegistry::make("/volk/binary_slicer");
 
-    std::vector<float> inputs               = {-10.0f, -5.0f, 0.0f, 5.0f, 10.0f};
-    std::vector<OutputType> expectedOutputs = {0, 0, 1, 1, 1};
-
-    auto binarySlicerBlock = Pothos::BlockRegistry::make(
-        "/volk/binary_slicer",
-        "float32",
-        outputDType);
-
-    VOLKTests::testOneToOneBlock<float,OutputType>(
+    VOLKTests::testOneToOneBlock<float,int8_t>(
         binarySlicerBlock,
         inputs,
         expectedOutputs);
-}
-
-POTHOS_TEST_BLOCK("/volk/tests", test_binary_slicer)
-{
-    testBinarySlicer<int8_t>();
-    testBinarySlicer<int32_t>();
 }
 
 //
@@ -430,8 +415,6 @@ static void testDivide(
 
     auto divideBlock = Pothos::BlockRegistry::make(
         "/volk/divide",
-        dtype,
-        dtype,
         dtype);
 
     VOLKTests::testTwoToOneBlock<T,T,T,size_t>(
@@ -661,7 +644,6 @@ static void testMultiplyConjugate(
 
     auto multiplyConjugateBlock = Pothos::BlockRegistry::make(
         "/volk/multiply_conjugate",
-        inDType,
         inDType,
         outDType);
 
