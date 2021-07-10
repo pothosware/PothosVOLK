@@ -14,9 +14,6 @@
 class ModRange: public VOLKBlock
 {
     public:
-        using InType = std::complex<float>;
-        using OutType = float;
-
         static Pothos::Block* make();
 
         ModRange();
@@ -94,10 +91,35 @@ void ModRange::work()
     output->produce(elems);
 }
 
-//
-// Factory
-//
-
+/***********************************************************************
+ * |PothosDoc Mod Range (VOLK)
+ *
+ * <p>
+ * Wraps floating-point numbers to stay within a defined [min,max] range.
+ * </p>
+ *
+ * <p>
+ * Underlying function: <b>volk_32f_s32f_s32f_mod_range_32f</b>
+ * </p>
+ *
+ * |category /Stream
+ * |category /VOLK
+ * |keywords clamp bound wrap
+ *
+ * |param lowerBound[Lower Bound]
+ * |widget DoubleSpinBox(decimals=3)
+ * |default 0.0
+ * |preview enable
+ *
+ * |param upperBound[Upper Bound]
+ * |widget DoubleSpinBox(decimals=3)
+ * |default 0.0
+ * |preview enable
+ *
+ * |factory /volk/mod_range()
+ * |setter setLowerBound(lowerBound)
+ * |setter setUpperBound(upperBound)
+ **********************************************************************/
 static Pothos::BlockRegistry registerModRange(
     "/volk/mod_range",
     &ModRange::make);

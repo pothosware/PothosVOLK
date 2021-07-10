@@ -90,10 +90,39 @@ void PowerSpectralDensity::work()
     output->produce(elems);
 }
 
-//
-// Factory
-//
-
+/***********************************************************************
+ * |PothosDoc Power Spectral Density (VOLK)
+ *
+ * <p>
+ * Calculates the log10 power value divided by the RBW for each input
+ * point.
+ * </p>
+ *
+ * <p>
+ * Underlying function: <b>volk_32fc_s32f_x2_power_spectral_density_32f</b>
+ * </p>
+ *
+ * |category /Math
+ * |category /FFT
+ * |category /VOLK
+ * |keywords math rf
+ *
+ * |param normalizationFactor[Normalization Factor]
+ * Divided against all input values before the power is calculated.
+ * |widget DoubleSpinBox(decimals=3)
+ * |default 1.0
+ * |preview enable
+ *
+ * |param rbw[RBW]
+ * Resolution Bandwidth
+ * |widget DoubleSpinBox(decimals=3)
+ * |default 1.0
+ * |preview enable
+ *
+ * |factory /volk/power_spectral_density()
+ * |setter setNormalizationFactor(normalizationFactor)
+ * |setter setRBW(rbw)
+ **********************************************************************/
 static Pothos::BlockRegistry registerVOLKPowerSpectralDensity(
     "/volk/power_spectral_density",
     &PowerSpectralDensity::make);

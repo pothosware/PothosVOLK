@@ -31,7 +31,7 @@ class Accumulator: public VOLKBlock
             static const Pothos::DType dtype(typeid(T));
 
             this->setupInput(0, dtype);
-            this->setupOutput(0, "", this->uid()); // Unique domain because of buffer forwarding
+            this->setupOutput(0, dtype, this->uid()); // Unique domain because of buffer forwarding
 
             this->registerCall(this, POTHOS_FCN_TUPLE(Class, currentSum));
             this->registerCall(this, POTHOS_FCN_TUPLE(Class, reset));
@@ -71,10 +71,33 @@ class Accumulator: public VOLKBlock
         T _accum;
 };
 
-//
-// Factory
-//
-
+/***********************************************************************
+ * |PothosDoc Accumulator (VOLK)
+ *
+ * <p>
+ * Stores the total sum of all inputs and forwards the buffer without
+ * copying. The overall sum can be probed with <b>currentSum</b>.
+ * </p>
+ *
+ * <p>
+ * Underlying functions:
+ * </p>
+ *
+ * <ul>
+ * <li><b>volk_32f_accumulator_32f</b></li>
+ * <li><b>volk_32fc_accumulator_32fc</b></li>
+ * </ul>
+ *
+ * |category /Stream
+ * |category /VOLK
+ *
+ * |param dtype[Data Type]
+ * |widget DTypeChooser(float32=1,cfloat32=1)
+ * |default "float32"
+ * |preview disable
+ *
+ * |factory /volk/accumulator(dtype)
+ **********************************************************************/
 static const std::string VOLKAccumulatorPath = "/volk/accumulator";
 
 static Pothos::Block* makeAccumulator(const Pothos::DType& dtype)

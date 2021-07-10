@@ -62,10 +62,17 @@ void QuadMaxStar::work()
     output->produce(elems);
 }
 
-//
-// Factory
-//
-
+/***********************************************************************
+ * |PothosDoc Quad Max* (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_16i_x4_quad_max_star_16i</b>
+ * </p>
+ *
+ * |category /VOLK
+ *
+ * |factory /volk/quad_max_star()
+ **********************************************************************/
 static Pothos::BlockRegistry registerQuadMaxStar(
     "/volk/quad_max_star",
     &QuadMaxStar::make);

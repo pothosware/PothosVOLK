@@ -46,6 +46,30 @@ class Byteswap: public VOLKBlock
         Fcn _byteswapFcn;
 };
 
+/***********************************************************************
+ * |PothosDoc Byteswap (VOLK)
+ *
+ * <p>
+ * Underlying functions:
+ * </p>
+ *
+ * <ul>
+ * <li><b>volk_16u_byteswap</b></li>
+ * <li><b>volk_32u_byteswap</b></li>
+ * <li><b>volk_64u_byteswap</b></li>
+ * </ul>
+ *
+ * |category /Digital
+ * |category /VOLK
+ * |keywords order endian
+ *
+ * |param dtype[Data Type]
+ * |widget DTypeChooser(uint16=1,uint32=1,uint64=1)
+ * |default "uint64"
+ * |preview disable
+ *
+ * |factory /volk/byteswap(dtype)
+ */
 static const std::string VOLKByteswapPath = "/volk/byteswap";
 
 #define IfTypeThenByteswap(Type,fcn) \

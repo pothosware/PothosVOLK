@@ -1650,7 +1650,7 @@ static Pothos::BlockRegistry registerVOLKPower(
  * |category /Math
  * |category /FFT
  * |category /VOLK
- * |keywords math trig
+ * |keywords math rf
  *
  * |param normalizationFactor[Normalization Factor]
  * A value multiplied to all outputs.

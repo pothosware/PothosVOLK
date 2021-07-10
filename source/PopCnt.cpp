@@ -59,10 +59,23 @@ void PopCnt::work()
     output->produce(elems);
 }
 
-//
-// Factory
-//
-
+/***********************************************************************
+ * |PothosDoc PopCnt (VOLK)
+ *
+ * <p>
+ * For each element, output the population count (or Hamming distance).
+ * </p>
+ *
+ * <p>
+ * Underlying function: <b>volk_64u_popcnt</b>
+ * </p>
+ *
+ * |category /Digital
+ * |category /VOLK
+ * |keywords bit population hamming distance
+ *
+ * |factory /volk/popcnt()
+ **********************************************************************/
 static Pothos::BlockRegistry registerPopCnt(
     "/volk/popcnt",
     &PopCnt::make);

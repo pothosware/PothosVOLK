@@ -33,6 +33,7 @@ Pothos::Block* AddQuad::make()
 
 AddQuad::AddQuad(): VOLKBlock()
 {
+    #warning TODO: DType vs dtype naming consistency
     static const Pothos::DType DType(typeid(int16_t));
 
     for(size_t i = 0; i < 5; ++i) this->setupInput(i, DType);
@@ -63,10 +64,17 @@ void AddQuad::work()
     for(auto* output: outputs) output->produce(elems);
 }
 
-//
-// Factory
-//
-
+/***********************************************************************
+ * |PothosDoc Add Quad (VOLK)
+ *
+ * <p>
+ * Underlying function: <b>volk_16i_x5_add_quad_16i_x4</b>
+ * </p>
+ *
+ * |category /VOLK
+ *
+ * |factory /volk/add_quad()
+ **********************************************************************/
 static Pothos::BlockRegistry registerAddQuad(
     "/volk/add_quad",
     &AddQuad::make);
