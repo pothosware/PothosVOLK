@@ -11,7 +11,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 ########################################################################
 # Find VOLK
 ########################################################################
-find_package(Volk REQUIRED)
+find_package(Volk REQUIRED) # TODO: minimum version
 
 ########################################################################
 # Find Python modules used to implement blocks
