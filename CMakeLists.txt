@@ -11,19 +11,11 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 ########################################################################
 # Find VOLK
 ########################################################################
-find_package(Volk 2.5)
+find_package(Volk)
 if(NOT VOLK_FOUND)
     message(STATUS "Could not find compatible VOLK version.")
     return()
 endif()
-
-########################################################################
-# Find Python modules used to implement blocks
-########################################################################
-find_package(PythonInterp REQUIRED)
-include(FindPythonModule)
-find_python_module(mako REQUIRED)
-find_python_module(yaml REQUIRED)
 
 ########################################################################
 # Build module
