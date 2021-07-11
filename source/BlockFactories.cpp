@@ -167,7 +167,7 @@ static Pothos::BlockRegistry registerVOLKAddScalar(
         .bind("setScalar", 2));
 
 /***********************************************************************
- * |PothosDoc Logical And (VOLK)
+ * |PothosDoc Bitwise And (VOLK)
  *
  * <p>
  * Underlying function: <b>volk_32i_x2_and_32i</b>
@@ -278,7 +278,9 @@ static Pothos::BlockRegistry registerVOLKBinarySlicer(
 /***********************************************************************
  * |PothosDoc Calc Spectral Noise Floor (VOLK)
  *
- * <p>Computes the spectral noise floor of an input power spectrum.</p>
+ * <p>
+ * Computes the spectral noise floor of an input power spectrum.
+ * </p>
  *
  * <p>
  * Calculates the spectral noise floor of an input power spectrum by
@@ -971,17 +973,18 @@ static Pothos::BlockRegistry registerVOLKDivide(
  *   <li>Precise: <b>volk_32f_exp_32f</b></li>
  * </ul>
  *
+ * |category /Math
+ * |category /VOLK
+ * |keywords math
+ *
  * |param mode[Mode]
- * The <b>FAST</b> operation can have up to a <b>7%</b> error.
+ * <b>FAST</b> mode has <b>2-3x</b> the performance of <b>PRECISE</b>
+ * but can have up to a <b>7%</b> error.
  * |widget ComboBox(editable=false)
  * |default "PRECISE"
  * |option [Fast] "FAST"
  * |option [Precise] "PRECISE"
  * |preview enable
- *
- * |category /Math
- * |category /VOLK
- * |keywords math
  *
  * |factory /volk/exp(mode)
  **********************************************************************/
@@ -1000,7 +1003,6 @@ static Pothos::Block* makeExp(const std::string& mode)
     return OneToOneBlock<float,float>::make(volkFcn);
 }
 
-#warning TODO: why does this not show up in PothosFlow?
 static Pothos::BlockRegistry registerVOLKExp(
     VOLKExpPath,
     &makeExp);
@@ -1499,7 +1501,7 @@ static Pothos::BlockRegistry registerVOLKMultiplyScalar(
     &makeMultiplyScalar);
 
 /***********************************************************************
- * |PothosDoc Logical Or (VOLK)
+ * |PothosDoc Bitwise Or (VOLK)
  *
  * <p>
  * Underlying function: <b>volk_32i_x2_or_32i</b>
