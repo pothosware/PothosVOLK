@@ -50,3 +50,35 @@ POTHOS_MODULE_UTIL(
     DESTINATION volk
     ENABLE_DOCS ON
 )
+
+########################################################################
+# Search for VOLK kernels added after minimum versions so we know to
+# compile in fallback versions if needed.
+########################################################################
+include(CheckSymbolExists)
+set(CMAKE_REQUIRED_INCLUDES ${VOLK_INCLUDE_DIRS})
+set(CMAKE_REQUIRED_LIBRARIES ${VOLK_LIBRARIES})
+
+function(CheckSymbolAndSetDefine symbol header variable)
+    check_symbol_exists(${symbol} ${header} ${variable})
+    if(${${variable}})
+        target_compile_definitions(VOLKBlocks PRIVATE -D${variable})
+    endif()
+endfunction()
+
+CheckSymbolAndSetDefine(
+    "volk_32fc_accumulator_s32fc"
+    "volk/volk.h"
+    HAVE_32FC_ACCUMULATOR)
+CheckSymbolAndSetDefine(
+    "volk_32f_s32f_add_32f"
+    "volk/volk.h"
+    HAVE_32F_S32F_ADD)
+CheckSymbolAndSetDefine(
+    "volk_32f_exp_32f"
+    "volk/volk.h"
+    HAVE_32F_EXP)
+CheckSymbolAndSetDefine(
+    "volk_32fc_x2_s32fc_multiply_conjugate_add_32fc"
+    "volk/volk.h"
+    HAVE_32FC_X2_S32FC_MULTIPLY_CONJUGATE_ADD)
