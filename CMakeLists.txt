@@ -11,7 +11,7 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 ########################################################################
 # Find VOLK
 ########################################################################
-find_package(Volk REQUIRED) # TODO: minimum version
+find_package(Volk REQUIRED)
 
 ########################################################################
 # Find Python modules used to implement blocks
@@ -27,7 +27,8 @@ find_python_module(yaml REQUIRED)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/source
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    ${VOLK_INCLUDE_DIRS})
 
 set(sources
     source/Accumulator.cpp
@@ -48,10 +49,8 @@ set(sources
 include(PothosUtil)
 POTHOS_MODULE_UTIL(
     TARGET VOLKBlocks
-    SOURCES
-        ${sources}
-    LIBRARIES
-        Volk::volk
+    SOURCES ${sources}
+    LIBRARIES ${VOLK_LIBRARIES}
     DESTINATION volk
     ENABLE_DOCS ON
 )
