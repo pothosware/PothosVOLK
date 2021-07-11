@@ -13,8 +13,20 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 ########################################################################
 find_package(Volk)
 if(NOT VOLK_FOUND)
-    message(STATUS "Could not find compatible VOLK version.")
+    message(WARNING "Could not find VOLK. Skipping.")
     return()
+else()
+    # VOLK's find_package behavior is non-standard, so we need this check.
+    set(VOLK_MIN_VERSION "020000") # v2.0.0
+
+    file(READ "${VOLK_INCLUDE_DIRS}/volk/volk_version.h" volk_version_h)
+    string(REGEX REPLACE "\\#define VOLK_VERSION (([0-9])+)\n" "\\1" VOLK_VERSION_MATCHES "${volk_version_h}")
+    set(VOLK_VERSION "${CMAKE_MATCH_1}")
+
+    if("${VOLK_VERSION}" STRLESS "${VOLK_MIN_VERSION}")
+        message(WARNING "VOLK version must be >= ${VOLK_MIN_VERSION}. Found ${VOLK_VERSION}. Skipping.")
+        return()
+    endif()
 endif()
 
 ########################################################################
