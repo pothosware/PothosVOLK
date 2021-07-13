@@ -1586,7 +1586,6 @@ static Pothos::BlockRegistry registerVOLKPower(
  * </p>
  *
  * |category /Math
- * |category /FFT
  * |category /VOLK
  * |keywords math rf
  *

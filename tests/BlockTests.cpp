@@ -12,6 +12,7 @@
 #include <complex>
 #include <iostream>
 #include <limits>
+#include <numeric>
 #include <type_traits>
 
 //
@@ -31,7 +32,47 @@ POTHOS_TEST_BLOCK("/volk/tests", test_acos)
         expectedOutputs);
 }
 
-// TODO: /volk/accumulator
+//
+// /volk/accumulator
+//
+
+template <typename T>
+static void testAccumulator(const std::vector<T>& testValues)
+{
+    const Pothos::DType dtype(typeid(T));
+
+    std::cout << " * Testing " << dtype.name() << "..." << std::endl;
+
+    T sum = std::accumulate(
+        testValues.begin(),
+        testValues.end(),
+        T(0));
+    sum *= T(VOLKTests::NumRepetitions);
+
+    auto accumulator = Pothos::BlockRegistry::make(
+        "/volk/accumulator",
+        dtype);
+
+    VOLKTests::testOneToOneBlock<T,T>(
+        accumulator,
+        testValues,
+        testValues);
+
+    const auto blockSum = accumulator.call<T>("currentSum");
+    POTHOS_TEST_EQUAL(sum, blockSum);
+}
+
+POTHOS_TEST_BLOCK("/volk/tests", test_accumulator)
+{
+    testAccumulator<float>({
+        10.0f, 20.0f, 30.0f, 40.0f, 50.0f,
+        60.0f, 70.0f, 80.0f, 90.0f, 100.0f
+    });
+    testAccumulator<std::complex<float>>({
+        {10.0f,20.0f},{30.0f,40.0f},{50.0f,60.0f},
+        {70.0f,80.0f},{90.0f,100.0f}
+    });
+}
 
 //
 // /volk/add
@@ -92,7 +133,24 @@ POTHOS_TEST_BLOCK("/volk/tests", test_add)
 }
 
 // TODO: add_quad
-// TODO: add_scalar
+
+POTHOS_TEST_BLOCK("/volk/tests", test_add_scalar)
+{
+    const std::vector<float> testInputs{123.4f,567.8f,901.2f,345.6f,789.0f};
+    constexpr float scalar = 0.5;
+
+    std::vector<float> expectedOutputs(testInputs);
+    for(auto& val: expectedOutputs) val += scalar;
+
+    auto addScalarBlock = Pothos::BlockRegistry::make("/volk/add_scalar");
+    addScalarBlock.call("setScalar", scalar);
+    POTHOS_TEST_CLOSE(scalar, addScalarBlock.call<float>("scalar"), 1e-6f);
+
+    VOLKTests::testOneToOneBlock<float,float>(
+        addScalarBlock,
+        testInputs,
+        expectedOutputs);
+}
 
 //
 // /volk/and
@@ -151,7 +209,38 @@ POTHOS_TEST_BLOCK("/volk/tests", test_atan)
         expectedOutputs);
 }
 
-// TODO: /volk/atan2
+//
+// /volk/atan2
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_atan2)
+{
+    constexpr float normalizationFactor = 5.0f;
+
+    const std::vector<std::complex<float>> testInputs{
+        {0.5f,1.0f},{1.5f,2.0f},{2.5f,3.0f},
+        {3.5f,4.0f},{4.5f,5.0f},{5.5f,6.0f}
+    };
+    std::vector<float> expectedOutputs;
+
+    std::transform(
+        testInputs.begin(),
+        testInputs.end(),
+        std::back_inserter(expectedOutputs),
+        [normalizationFactor](const std::complex<float>& input)
+        {
+            return std::atan2(input.imag(), input.real()) / normalizationFactor;
+        });
+
+    auto atan2 = Pothos::BlockRegistry::make("/volk/atan2");
+    atan2.call("setNormalizationFactor", normalizationFactor);
+    POTHOS_TEST_EQUAL(normalizationFactor, atan2.call<float>("normalizationFactor"));
+
+    VOLKTests::testOneToOneBlock<std::complex<float>,float>(
+        atan2,
+        testInputs,
+        expectedOutputs);
+}
 
 //
 // /volk/binary_slicer
