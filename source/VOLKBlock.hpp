@@ -447,7 +447,7 @@ class TwoToOneScalarParamBlock: public VOLKBlock
 
         void work() override
         {
-            const auto elems = this->workInfo().minElements;
+            const auto elems = this->workInfo().minAllElements;
             if(0 == elems) return;
 
             auto input0 = this->input(_inputPort0Name);

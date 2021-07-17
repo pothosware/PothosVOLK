@@ -82,7 +82,8 @@ namespace VOLKTests
         const Pothos::Proxy& testBlock,
         const std::vector<InType>& testInputsVec,
         const std::vector<OutType>& expectedOutputsVec,
-        bool lax = false)
+        bool lax = false,
+        bool testOutputs = true)
     {
         static const Pothos::DType InDType(typeid(InType));
         static const Pothos::DType OutDType(typeid(OutType));
@@ -93,7 +94,7 @@ namespace VOLKTests
         const auto expectedOutputs = VOLKTests::stdVectorToStretchedBufferChunk(
             expectedOutputsVec,
             NumRepetitions);
-        POTHOS_TEST_EQUAL(testInputs.elements(), expectedOutputs.elements());
+        if(testOutputs) POTHOS_TEST_EQUAL(testInputs.elements(), expectedOutputs.elements());
 
         auto source = Pothos::BlockRegistry::make("/blocks/feeder_source", InDType);
         source.call("feedBuffer", testInputs);
@@ -109,11 +110,20 @@ namespace VOLKTests
             POTHOS_TEST_TRUE(topology.waitInactive(0.01));
         }
 
-        auto outputs = sink.call<Pothos::BufferChunk>("getBuffer");
-        testBufferChunks<OutType>(
-            expectedOutputs,
-            outputs,
-            lax);
+        if(testOutputs)
+        {
+            auto outputs = sink.call<Pothos::BufferChunk>("getBuffer");
+            testBufferChunks<OutType>(
+                expectedOutputs,
+                outputs,
+                lax);
+        }
+        else
+        {
+            auto outputs = sink.call<Pothos::BufferChunk>("getBuffer");
+            POTHOS_TEST_EQUAL(OutDType, outputs.dtype);
+            POTHOS_TEST_EQUAL(testInputs.elements(), outputs.elements());
+        }
     }
 
     template <typename InType, typename OutType0, typename OutType1, typename OutputPortType>

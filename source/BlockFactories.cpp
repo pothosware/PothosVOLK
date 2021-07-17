@@ -458,7 +458,7 @@ static Pothos::BlockRegistry registerVOLKConvert(
  *     float32 -> int32 (float32 scalar)
  *     <ul>
  *       <li>Underlying function: <b>volk_32i_s32f_convert_f32</b></li>
- *       <li>Divides all inputs by <b>scalar</b>.</li>
+ *       <li>Multiplies all inputs by <b>scalar</b>.</li>
  *       <li>Truncates all scaled values to fit inside an <b>int32</b>.</li>
  *     </ul>
  *   </li>
@@ -844,7 +844,7 @@ static Pothos::BlockRegistry registerVOLKDeinterleaveRealScaled(
  *
  * <p>
  * Deinterleaves a complex input into its real and imaginary inputs,
- * performing type conversions if needed. Multiplies each output by a
+ * performing type conversions if needed. Divides each output by a
  * given scalar value.
  * </p>
  *
@@ -1034,7 +1034,7 @@ static Pothos::BlockRegistry registerVOLKInterleave(
  *
  * <p>
  * Interleaves real and imaginary inputs into a complex output, then
- * applies a user-provided scalar.
+ * multiplies a user-provided scalar.
  * </p>
  *
  * <p>
@@ -1431,7 +1431,7 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugateAdd(
  * |keywords math complex
  *
  * |param scalar[Scalar]
- * A constant value multiplied with all values in the second vector.
+ * A constant value divided with all values in the second vector.
  * |widget DoubleSpinBox(decimals=3)
  * |default 0.0
  * |preview enable
