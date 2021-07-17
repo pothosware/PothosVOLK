@@ -20,6 +20,7 @@ class VOLKBlock: public Pothos::Block
         VOLKBlock(){}
         virtual ~VOLKBlock() = default;
 
+#ifdef POTHOSVOLK_CUSTOM_BUFFER_ALLOCATOR
         Pothos::BufferManager::Sptr getInputBufferManager(
             const std::string&,
             const std::string&) override
@@ -39,6 +40,7 @@ class VOLKBlock: public Pothos::Block
 
             return bufferManager;
         }
+#endif
 
         virtual void work() override = 0;
 };

@@ -63,6 +63,10 @@ POTHOS_MODULE_UTIL(
     ENABLE_DOCS ON
 )
 
+if(POTHOS_ABI_VERSION STRGREATER_EQUAL "0.7-2")
+    add_definitions(-DPOTHOSVOLK_CUSTOM_BUFFER_ALLOCATOR)
+endif()
+
 ########################################################################
 # Search for VOLK kernels added after minimum versions so we know to
 # compile in fallback versions if needed.
