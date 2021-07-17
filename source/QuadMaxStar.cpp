@@ -54,7 +54,7 @@ void QuadMaxStar::work()
         inputs[1]->buffer(),
         inputs[2]->buffer(),
         inputs[3]->buffer(),
-        elems);
+        static_cast<unsigned int>(elems));
 
     for(auto* input: inputs) input->consume(elems);
     output->produce(elems);

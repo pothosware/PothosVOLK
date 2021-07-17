@@ -60,7 +60,7 @@ class Accumulator: public VOLKBlock
             auto buffer = input->takeBuffer();
 
             T bufferAccum = 0;
-            _fcn(&bufferAccum, buffer, elems);
+            _fcn(&bufferAccum, buffer, static_cast<unsigned int>(elems));
             _accum += bufferAccum;
 
             input->consume(elems);

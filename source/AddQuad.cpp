@@ -55,7 +55,7 @@ void AddQuad::work()
         inputs[2]->buffer(),
         inputs[3]->buffer(),
         inputs[4]->buffer(),
-        elems);
+        static_cast<unsigned int>(elems));
 
     for(auto* input: inputs)   input->consume(elems);
     for(auto* output: outputs) output->produce(elems);

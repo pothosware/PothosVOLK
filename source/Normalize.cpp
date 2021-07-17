@@ -68,7 +68,7 @@ void Normalize::work()
     volk_32f_s32f_normalize(
         output->buffer(),
         _scalar,
-        elems);
+        static_cast<unsigned int>(elems));
 
     input->consume(elems);
     output->produce(elems);

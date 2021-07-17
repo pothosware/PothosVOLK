@@ -42,7 +42,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_acos)
     VOLKTests::testOneToOneBlock<float,float>(
         Pothos::BlockRegistry::make("/volk/acos"),
         {0.0f,   0.5f,      1.0f},
-        {M_PI_2, M_PI/3.0f, 0.0f});
+        {float(M_PI_2), float(M_PI)/3.0f, 0.0f});
 }
 
 //
@@ -235,7 +235,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_asin)
     VOLKTests::testOneToOneBlock<float,float>(
         Pothos::BlockRegistry::make("/volk/asin"),
         {0.0f, 0.5f,      1.0f},
-        {0.0f, M_PI/6.0f, M_PI_2});
+        {0.0f, float(M_PI)/6.0f, float(M_PI_2)});
 }
 
 //
@@ -247,7 +247,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_atan)
     VOLKTests::testOneToOneBlock<float,float>(
         Pothos::BlockRegistry::make("/volk/atan"),
         {0.0f, 1.0f,      std::numeric_limits<float>::infinity()},
-        {0.0f, M_PI/4.0f, M_PI_2});
+        {0.0f, float(M_PI)/4.0f, float(M_PI_2)});
 }
 
 //
@@ -269,7 +269,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_atan2)
         testInputs.begin(),
         testInputs.end(),
         std::back_inserter(expectedOutputs),
-        [](const std::complex<float>& input)
+        [&](const std::complex<float>& input)
         {
             return std::atan2(input.imag(), input.real()) / normalizationFactor;
         });
@@ -466,7 +466,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_cos)
 {
     VOLKTests::testOneToOneBlock<float,float>(
         Pothos::BlockRegistry::make("/volk/cos"),
-        {0.0f, M_PI_2, M_PI},
+        {0.0f, float(M_PI_2), float(M_PI)},
         {1.0f, 0.0f, -1.0f});
 }
 
@@ -728,7 +728,7 @@ static void testExp(const std::string& mode, bool lax)
     VOLKTests::testOneToOneBlock<float,float>(
         Pothos::BlockRegistry::make("/volk/exp", mode),
         {0.0f, 1.0f},
-        {1.0f, M_E},
+        {1.0f, float(M_E)},
         lax);
 }
 
@@ -1405,7 +1405,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_sin)
 {
     VOLKTests::testOneToOneBlock<float,float>(
         Pothos::BlockRegistry::make("/volk/sin"),
-        {0.0f, M_PI_2, M_PI},
+        {0.0f, float(M_PI_2), float(M_PI)},
         {0.0f, 1.0f,   0.0f});
 }
 
@@ -1497,7 +1497,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_tan)
 {
     VOLKTests::testOneToOneBlock<float,float>(
         Pothos::BlockRegistry::make("/volk/tan"),
-        {0.0f, M_PI_4, M_PI},
+        {0.0f, float(M_PI_4), float(M_PI)},
         {0.0f, 1.0f,   0.0f});
 }
 
@@ -1509,6 +1509,6 @@ POTHOS_TEST_BLOCK("/volk/tests", test_tanh)
 {
     VOLKTests::testOneToOneBlock<float,float>(
         Pothos::BlockRegistry::make("/volk/tanh"),
-        {0.0f, M_PI_2,   M_PI},
+        {0.0f, float(M_PI_2),   float(M_PI)},
         {0.0f, 0.91715f, 0.99627f});
 }

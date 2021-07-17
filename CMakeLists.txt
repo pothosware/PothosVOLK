@@ -67,12 +67,12 @@ POTHOS_MODULE_UTIL(
 # Search for VOLK kernels added after minimum versions so we know to
 # compile in fallback versions if needed.
 ########################################################################
-include(CheckSymbolExists)
+include(CheckCXXSymbolExists)
 set(CMAKE_REQUIRED_INCLUDES ${VOLK_INCLUDE_DIRS})
 set(CMAKE_REQUIRED_LIBRARIES ${VOLK_LIBRARIES})
 
 function(CheckSymbolAndSetDefine symbol header variable)
-    check_symbol_exists(${symbol} ${header} ${variable})
+    check_cxx_symbol_exists(${symbol} ${header} ${variable})
     if(${${variable}})
         target_compile_definitions(VOLKBlocks PRIVATE -D${variable})
     endif()

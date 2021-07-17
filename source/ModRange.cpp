@@ -83,7 +83,7 @@ void ModRange::work()
         input->buffer(),
         _lowerBound,
         _upperBound,
-        elems);
+        static_cast<unsigned int>(elems));
 
     input->consume(elems);
     output->produce(elems);

@@ -109,7 +109,7 @@ void SquareDist::_workNoScalar()
         output->buffer(),
         &_input,
         input->buffer(),
-        elems);
+        static_cast<unsigned int>(elems));
 
     input->consume(elems);
     output->produce(elems);
@@ -128,7 +128,7 @@ void SquareDist::_workScalar()
         &_input,
         input->buffer(),
         _scalar,
-        elems);
+        static_cast<unsigned int>(elems));
 
     input->consume(elems);
     output->produce(elems);

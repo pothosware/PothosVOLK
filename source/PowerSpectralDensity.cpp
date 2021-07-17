@@ -81,7 +81,7 @@ void PowerSpectralDensity::work()
         input->buffer(),
         _normalizationFactor,
         _rbw,
-        elems);
+        static_cast<unsigned int>(elems));
 
     input->consume(elems);
     output->produce(elems);

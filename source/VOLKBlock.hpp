@@ -7,6 +7,7 @@
 
 #include <Pothos/Framework.hpp>
 
+#include <cassert>
 #include <string>
 
 //
@@ -63,6 +64,8 @@ class OneToOneBlock: public VOLKBlock
 
         OneToOneBlock(Fcn fcn): _fcn(fcn)
         {
+            assert(_fcn);
+
             static const Pothos::DType inDType(typeid(InType));
             static const Pothos::DType outDType(typeid(OutType));
 
@@ -119,8 +122,11 @@ class OneToOneScalarParamBlock: public VOLKBlock
             const std::string& getterName,
             const std::string& setterName
         ):
-            _fcn(fcn)
+            _fcn(fcn),
+            _scalar(ScalarType(0))
         {
+            assert(_fcn);
+
             static const Pothos::DType inDType(typeid(InType));
             static const Pothos::DType outDType(typeid(OutType));
 
@@ -196,6 +202,8 @@ class OneToTwoBlock: public VOLKBlock
             _outputPort0Name(outputPort0Name),
             _outputPort1Name(outputPort1Name)
         {
+            assert(_fcn);
+
             static const Pothos::DType inDType(typeid(InType));
             static const Pothos::DType outDType0(typeid(OutType0));
             static const Pothos::DType outDType1(typeid(OutType1));
@@ -264,9 +272,12 @@ class OneToTwoScalarParamBlock: public VOLKBlock
             const OutputPortType& outputPort1Name
         ):
             _fcn(fcn),
+            _scalar(ScalarType(0)),
             _outputPort0Name(outputPort0Name),
             _outputPort1Name(outputPort1Name)
         {
+            assert(_fcn);
+
             static const Pothos::DType inDType(typeid(InType));
             static const Pothos::DType outDType0(typeid(OutType0));
             static const Pothos::DType outDType1(typeid(OutType1));
@@ -350,6 +361,8 @@ class TwoToOneBlock: public VOLKBlock
             _inputPort0Name(inputPort0Name),
             _inputPort1Name(inputPort1Name)
         {
+            assert(_fcn);
+
             static const Pothos::DType inDType0(typeid(InType0));
             static const Pothos::DType inDType1(typeid(InType1));
             static const Pothos::DType outDType(typeid(OutType));
@@ -418,9 +431,12 @@ class TwoToOneScalarParamBlock: public VOLKBlock
             const InputPortType& inputPort1Name
         ):
             _fcn(fcn),
+            _scalar(ScalarType(0)),
             _inputPort0Name(inputPort0Name),
             _inputPort1Name(inputPort1Name)
         {
+            assert(_fcn);
+
             static const Pothos::DType inDType0(typeid(InType0));
             static const Pothos::DType inDType1(typeid(InType1));
             static const Pothos::DType outDType(typeid(OutType));
