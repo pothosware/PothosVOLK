@@ -165,18 +165,6 @@ POTHOS_TEST_BLOCK("/volk/tests", test_add_quad)
         {-1,  2,  -3,  4, -5,  6, -7,  8, -9, 10},
         { 5,  10, 15, 20, 25, 30, 35, 40, 45, 50}
     };
-    std::vector<Pothos::BufferChunk> inputs;
-    std::transform(
-        inputVecs.begin(),
-        inputVecs.end(),
-        std::back_inserter(inputs),
-        [](const std::vector<int16_t>& vec)
-        {
-            return VOLKTests::stdVectorToStretchedBufferChunk(
-                vec,
-                VOLKTests::NumRepetitions);
-        });
-
     const std::vector<std::vector<int16_t>> expectedOutputVecs =
     {
         {-3, -1,   1,  3,  5,  7,  9, 11, 13, 15},
@@ -184,74 +172,16 @@ POTHOS_TEST_BLOCK("/volk/tests", test_add_quad)
         { 0,  4,   0,  8,  0, 12,  0, 16,  0, 20},
         { 6,  12, 18, 24, 30, 36, 42, 48, 54, 60}
     };
-    std::vector<Pothos::BufferChunk> expectedOutputs;
-    std::transform(
-        expectedOutputVecs.begin(),
-        expectedOutputVecs.end(),
-        std::back_inserter(expectedOutputs),
-        [](const std::vector<int16_t>& vec)
-        {
-            return VOLKTests::stdVectorToStretchedBufferChunk(
-                vec,
-                VOLKTests::NumRepetitions);
-        });
 
     //
     // Test implementation
     //
 
     auto addQuadBlock = Pothos::BlockRegistry::make("/volk/add_quad");
-
-    std::vector<Pothos::Proxy> sources;
-    std::transform(
-        inputs.begin(),
-        inputs.end(),
-        std::back_inserter(sources),
-        [](const Pothos::BufferChunk& bufferChunk)
-        {
-            auto source = Pothos::BlockRegistry::make("/blocks/feeder_source", "int16");
-            source.call("feedBuffer", bufferChunk);
-
-            return source;
-        });
-
-    std::vector<Pothos::Proxy> sinks;
-    for(size_t i = 0; i < expectedOutputs.size(); ++i)
-    {
-        sinks.emplace_back(Pothos::BlockRegistry::make("/blocks/collector_sink", "int16"));
-    }
-
-    {
-        Pothos::Topology topology;
-        for(size_t input = 0; input < inputs.size(); ++input)
-        {
-            topology.connect(
-                sources[input],
-                0,
-                addQuadBlock,
-                input);
-        }
-        for(size_t output = 0; output < expectedOutputs.size(); ++output)
-        {
-            topology.connect(
-                addQuadBlock,
-                output,
-                sinks[output],
-                0);
-        }
-
-        topology.commit();
-        POTHOS_TEST_TRUE(topology.waitInactive(0.01));
-    }
-
-    for(size_t output = 0; output < expectedOutputs.size(); ++output)
-    {
-        std::cout << " * Testing output " << output << "..." << std::endl;
-
-        VOLKTests::testBufferChunks<int16_t>(
-            expectedOutputs[output],
-            sinks[output].call<Pothos::BufferChunk>("getBuffer"));
-    }
+    VOLKTests::testMToNBlock<int16_t,int16_t>(
+        addQuadBlock,
+        inputVecs,
+        expectedOutputVecs);
 }
 
 //
@@ -1372,9 +1302,74 @@ POTHOS_TEST_BLOCK("/volk/tests", test_power)
         {0.0f, 0.25f, 1.0f, 2.25f, 4.0f, 6.25f, 9.0f, 12.25f, 16.0f});
 }
 
-// TODO: /volk/power_spectral_density
-// TODO: /volk/power_spectrum
-// TODO: /volk/quad_max_star
+//
+// /volk/power_spectral_density
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_power_spectral_density)
+{
+    const float normalizationFactor = 10.0f;
+    const float rbw = 1e3f;
+
+    auto powerSpectralDensityBlock = Pothos::BlockRegistry::make("/volk/power_spectral_density");
+    setAndTestValue(
+        powerSpectralDensityBlock,
+        normalizationFactor,
+        "normalizationFactor",
+        "setNormalizationFactor");
+    setAndTestValue(powerSpectralDensityBlock, rbw, "rbw", "setRBW");
+
+    // Just make sure the block executes
+    VOLKTests::testOneToOneBlock<std::complex<float>,float>(
+        powerSpectralDensityBlock,
+        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+        {},
+        false /*lax*/,
+        false /*testOutputs*/);
+}
+
+//
+// /volk/power_spectrum
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_power_spectrum)
+{
+    const float normalizationFactor = 10.0f;
+
+    auto powerSpectrumBlock = Pothos::BlockRegistry::make("/volk/power_spectrum");
+    setAndTestValue(
+        powerSpectrumBlock,
+        normalizationFactor,
+        "normalizationFactor",
+        "setNormalizationFactor");
+
+    // Just make sure the block executes
+    VOLKTests::testOneToOneBlock<std::complex<float>,float>(
+        powerSpectrumBlock,
+        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+        {},
+        false /*lax*/,
+        false /*testOutputs*/);
+}
+
+//
+// /volk/quad_max_star
+//
+
+POTHOS_TEST_BLOCK("/volk/tests", test_quad_max_star)
+{
+    std::vector<std::vector<int16_t>> inputs(
+        4,
+        std::vector<int16_t>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+
+    // Just make sure the block executes
+    VOLKTests::testMToNBlock<int16_t,int16_t>(
+        Pothos::BlockRegistry::make("/volk/quad_max_star"),
+        inputs,
+        {{}},
+        false /*lax*/,
+        false /*testOutputs*/);
+}
 
 //
 // /volk/reverse

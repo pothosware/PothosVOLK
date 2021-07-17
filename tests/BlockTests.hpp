@@ -8,6 +8,8 @@
 #include <Pothos/Framework.hpp>
 #include <Pothos/Testing.hpp>
 
+#include <algorithm>
+#include <iostream>
 #include <vector>
 
 namespace VOLKTests
@@ -227,5 +229,94 @@ namespace VOLKTests
             expectedOutputs,
             outputs,
             lax);
+    }
+
+    // Note: only use if input types are same and output types are same
+    template <typename InType, typename OutType>
+    void testMToNBlock(
+        const Pothos::Proxy& block,
+        const std::vector<std::vector<InType>>& inputs,
+        const std::vector<std::vector<OutType>>& expectedOutputs,
+        bool lax = false,
+        bool testOutputs = true)
+    {
+        static const Pothos::DType inDType(typeid(InType));
+        static const Pothos::DType outDType(typeid(OutType));
+
+        std::cout << "Testing " << block.call<std::string>("getName")
+                  << " (" << inDType.name() << " x" << inputs.size()
+                  << " -> " << outDType.name() << " x" << expectedOutputs.size()
+                  << ")..." << std::endl;
+
+        std::vector<Pothos::BufferChunk> inputBuffers;
+        std::vector<Pothos::BufferChunk> expectedOutputBuffers;
+
+        std::transform(
+            inputs.begin(),
+            inputs.end(),
+            std::back_inserter(inputBuffers),
+            [](const std::vector<InType>& input)
+            {
+                return stdVectorToStretchedBufferChunk(input, NumRepetitions);
+            });
+        std::transform(
+            expectedOutputs.begin(),
+            expectedOutputs.end(),
+            std::back_inserter(expectedOutputBuffers),
+            [](const std::vector<InType>& expectedOutput)
+            {
+                return stdVectorToStretchedBufferChunk(expectedOutput, NumRepetitions);
+            });
+
+        std::vector<Pothos::Proxy> sources;
+        for(size_t input = 0; input < inputs.size(); ++input)
+        {
+            sources.emplace_back(Pothos::BlockRegistry::make(
+                "/blocks/feeder_source",
+                inDType));
+            sources.back().call("feedBuffer", inputBuffers[input]);
+        }
+
+        std::vector<Pothos::Proxy> sinks;
+        for(size_t output = 0; output < expectedOutputs.size(); ++output)
+        {
+            sinks.emplace_back(Pothos::BlockRegistry::make(
+                "/blocks/collector_sink",
+                outDType));
+        }
+
+        {
+            Pothos::Topology topology;
+            for(size_t input = 0; input < sources.size(); ++input)
+            {
+                topology.connect(sources[input], 0, block, input);
+            }
+            for(size_t output = 0; output < sinks.size(); ++output)
+            {
+                topology.connect(block, output, sinks[output], 0);
+            }
+
+            topology.commit();
+            POTHOS_TEST_TRUE(topology.waitInactive(0.01));
+        }
+
+        for(size_t output = 0; output < sinks.size(); ++output)
+        {
+            std::cout << " * Testing output " << output << "..." << std::endl;
+
+            auto outputBuffer = sinks[output].call<Pothos::BufferChunk>("getBuffer");
+            if(testOutputs)
+            {
+                testBufferChunks<OutType>(
+                    expectedOutputBuffers[output],
+                    outputBuffer,
+                    lax);
+            }
+            else
+            {
+                POTHOS_TEST_EQUAL(outDType, outputBuffer.dtype);
+                POTHOS_TEST_EQUAL(inputBuffers[0].elements(), outputBuffer.elements());
+            }
+        }
     }
 }
