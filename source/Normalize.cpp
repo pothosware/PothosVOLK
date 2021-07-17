@@ -49,10 +49,8 @@ Pothos::Block* Normalize::make()
 
 Normalize::Normalize(): VOLKBlock(), _scalar(1.0f)
 {
-    static const Pothos::DType dtype(typeid(float));
-
-    this->setupInput(0, dtype);
-    this->setupOutput(0, dtype);
+    this->setupInput(0, "float32");
+    this->setupOutput(0, "float32");
 
     this->registerCall(this, POTHOS_FCN_TUPLE(Normalize, scalar));
     this->registerCall(this, POTHOS_FCN_TUPLE(Normalize, setScalar));

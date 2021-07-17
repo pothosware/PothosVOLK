@@ -33,11 +33,8 @@ Pothos::Block* AddQuad::make()
 
 AddQuad::AddQuad(): VOLKBlock()
 {
-    #warning TODO: DType vs dtype naming consistency
-    static const Pothos::DType DType(typeid(int16_t));
-
-    for(size_t i = 0; i < 5; ++i) this->setupInput(i, DType);
-    for(size_t i = 0; i < 4; ++i) this->setupOutput(i, DType);
+    for(size_t i = 0; i < 5; ++i) this->setupInput(i, "int16");
+    for(size_t i = 0; i < 4; ++i) this->setupOutput(i, "int16");
 }
 
 void AddQuad::work()

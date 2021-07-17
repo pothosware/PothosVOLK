@@ -39,7 +39,7 @@ class VOLKBlock: public Pothos::Block
             return bufferManager;
         }
 
-        virtual void work() = 0;
+        virtual void work() override = 0;
 };
 
 //
@@ -63,11 +63,11 @@ class OneToOneBlock: public VOLKBlock
 
         OneToOneBlock(Fcn fcn): _fcn(fcn)
         {
-            static const Pothos::DType InDType(typeid(InType));
-            static const Pothos::DType OutDType(typeid(OutType));
+            static const Pothos::DType inDType(typeid(InType));
+            static const Pothos::DType outDType(typeid(OutType));
 
-            this->setupInput(0, InDType);
-            this->setupOutput(0, OutDType);
+            this->setupInput(0, inDType);
+            this->setupOutput(0, outDType);
         }
 
         virtual ~OneToOneBlock() = default;
@@ -121,11 +121,11 @@ class OneToOneScalarParamBlock: public VOLKBlock
         ):
             _fcn(fcn)
         {
-            static const Pothos::DType InDType(typeid(InType));
-            static const Pothos::DType OutDType(typeid(OutType));
+            static const Pothos::DType inDType(typeid(InType));
+            static const Pothos::DType outDType(typeid(OutType));
 
-            this->setupInput(0, InDType);
-            this->setupOutput(0, OutDType);
+            this->setupInput(0, inDType);
+            this->setupOutput(0, outDType);
 
             this->registerCall(this, getterName, &Class::scalar);
             this->registerCall(this, setterName, &Class::setScalar);
@@ -196,13 +196,13 @@ class OneToTwoBlock: public VOLKBlock
             _outputPort0Name(outputPort0Name),
             _outputPort1Name(outputPort1Name)
         {
-            static const Pothos::DType InDType(typeid(InType));
-            static const Pothos::DType OutDType0(typeid(OutType0));
-            static const Pothos::DType OutDType1(typeid(OutType1));
+            static const Pothos::DType inDType(typeid(InType));
+            static const Pothos::DType outDType0(typeid(OutType0));
+            static const Pothos::DType outDType1(typeid(OutType1));
 
-            this->setupInput(0, InDType);
-            this->setupOutput(_outputPort0Name, OutDType0);
-            this->setupOutput(_outputPort1Name, OutDType1);
+            this->setupInput(0, inDType);
+            this->setupOutput(_outputPort0Name, outDType0);
+            this->setupOutput(_outputPort1Name, outDType1);
         }
 
         virtual ~OneToTwoBlock() = default;
@@ -267,14 +267,14 @@ class OneToTwoScalarParamBlock: public VOLKBlock
             _outputPort0Name(outputPort0Name),
             _outputPort1Name(outputPort1Name)
         {
-            static const Pothos::DType InDType(typeid(InType));
-            static const Pothos::DType OutDType0(typeid(OutType0));
-            static const Pothos::DType OutDType1(typeid(OutType1));
+            static const Pothos::DType inDType(typeid(InType));
+            static const Pothos::DType outDType0(typeid(OutType0));
+            static const Pothos::DType outDType1(typeid(OutType1));
             static const Pothos::DType ScalarDType(typeid(ScalarType));
 
-            this->setupInput(0, InDType);
-            this->setupOutput(_outputPort0Name, OutDType0);
-            this->setupOutput(_outputPort1Name, OutDType1);
+            this->setupInput(0, inDType);
+            this->setupOutput(_outputPort0Name, outDType0);
+            this->setupOutput(_outputPort1Name, outDType1);
 
             this->registerCall(this, getterName, &Class::scalar);
             this->registerCall(this, setterName, &Class::setScalar);
@@ -350,13 +350,13 @@ class TwoToOneBlock: public VOLKBlock
             _inputPort0Name(inputPort0Name),
             _inputPort1Name(inputPort1Name)
         {
-            static const Pothos::DType InDType0(typeid(InType0));
-            static const Pothos::DType InDType1(typeid(InType1));
-            static const Pothos::DType OutDType(typeid(OutType));
+            static const Pothos::DType inDType0(typeid(InType0));
+            static const Pothos::DType inDType1(typeid(InType1));
+            static const Pothos::DType outDType(typeid(OutType));
 
-            this->setupInput(_inputPort0Name, InDType0);
-            this->setupInput(_inputPort1Name, InDType1);
-            this->setupOutput(0, OutDType);
+            this->setupInput(_inputPort0Name, inDType0);
+            this->setupInput(_inputPort1Name, inDType1);
+            this->setupOutput(0, outDType);
         }
 
         virtual ~TwoToOneBlock() = default;
@@ -421,13 +421,13 @@ class TwoToOneScalarParamBlock: public VOLKBlock
             _inputPort0Name(inputPort0Name),
             _inputPort1Name(inputPort1Name)
         {
-            static const Pothos::DType InDType0(typeid(InType0));
-            static const Pothos::DType InDType1(typeid(InType1));
-            static const Pothos::DType OutDType(typeid(OutType));
+            static const Pothos::DType inDType0(typeid(InType0));
+            static const Pothos::DType inDType1(typeid(InType1));
+            static const Pothos::DType outDType(typeid(OutType));
 
-            this->setupInput(inputPort0Name, InDType0);
-            this->setupInput(inputPort1Name, InDType1);
-            this->setupOutput(0, OutDType);
+            this->setupInput(inputPort0Name, inDType0);
+            this->setupInput(inputPort1Name, inDType1);
+            this->setupOutput(0, outDType);
 
             this->registerCall(this, getterName, &Class::scalar);
             this->registerCall(this, setterName, &Class::setScalar);

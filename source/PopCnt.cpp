@@ -31,10 +31,8 @@ Pothos::Block* PopCnt::make()
 
 PopCnt::PopCnt(): VOLKBlock()
 {
-    static const Pothos::DType DType(typeid(uint64_t));
-
-    this->setupInput(0, DType);
-    this->setupOutput(0, DType);
+    this->setupInput(0, "uint64");
+    this->setupOutput(0, "uint64");
 }
 
 void PopCnt::work()

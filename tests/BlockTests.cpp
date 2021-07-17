@@ -16,7 +16,22 @@
 #include <numeric>
 #include <type_traits>
 
-#warning TODO: block variable naming consistency, no unnecessary variables
+//
+// Utility
+//
+
+template <typename T>
+static void setAndTestValue(
+    const Pothos::Proxy& block,
+    const T& scalar,
+    const std::string& getter = "scalar",
+    const std::string& setter = "setScalar")
+{
+    block.call(setter, scalar);
+    VOLKTests::testValuesEqual(
+        scalar,
+        block.call<T>(getter));
+}
 
 //
 // /volk/acos
@@ -24,15 +39,10 @@
 
 POTHOS_TEST_BLOCK("/volk/tests", test_acos)
 {
-    std::vector<float> testInputs      = {0.0f, 0.5f, 1.0f};
-    std::vector<float> expectedOutputs = {M_PI_2, M_PI/3.0f, 0.0f};
-
-    auto acos = Pothos::BlockRegistry::make("/volk/acos");
-
     VOLKTests::testOneToOneBlock<float,float>(
-        acos,
-        testInputs,
-        expectedOutputs);
+        Pothos::BlockRegistry::make("/volk/acos"),
+        {0.0f,   0.5f,      1.0f},
+        {M_PI_2, M_PI/3.0f, 0.0f});
 }
 
 //
@@ -61,8 +71,12 @@ static void testAccumulator(const std::vector<T>& testValues)
         testValues,
         testValues);
 
-    const auto blockSum = accumulator.call<T>("currentSum");
+    auto blockSum = accumulator.call<T>("currentSum");
     POTHOS_TEST_EQUAL(sum, blockSum);
+
+    accumulator.call("reset");
+    blockSum = accumulator.call<T>("currentSum");
+    POTHOS_TEST_EQUAL(T(0), blockSum);
 }
 
 POTHOS_TEST_BLOCK("/volk/tests", test_accumulator)
@@ -72,8 +86,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_accumulator)
         60.0f, 70.0f, 80.0f, 90.0f, 100.0f
     });
     testAccumulator<std::complex<float>>({
-        {10.0f,20.0f},{30.0f,40.0f},{50.0f,60.0f},
-        {70.0f,80.0f},{90.0f,100.0f}
+        {10.0f,20.0f}, {30.0f,40.0f}, {50.0f,60.0f},
+        {70.0f,80.0f}, {90.0f,100.0f}
     });
 }
 
@@ -111,14 +125,12 @@ static void testAdd()
         &testInputs1,
         &expectedOutputs);
     
-    auto add = Pothos::BlockRegistry::make(
-        "/volk/add",
-        inDType0,
-        inDType1,
-        outDType);
-
     VOLKTests::testTwoToOneBlock<InType0,InType1,OutType,size_t>(
-        add,
+        Pothos::BlockRegistry::make(
+            "/volk/add",
+            inDType0,
+            inDType1,
+            outDType),
         testInputs0,
         testInputs1,
         expectedOutputs,
@@ -255,8 +267,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_add_scalar)
     for(auto& val: expectedOutputs) val += scalar;
 
     auto addScalarBlock = Pothos::BlockRegistry::make("/volk/add_scalar");
-    addScalarBlock.call("setScalar", scalar);
-    POTHOS_TEST_CLOSE(scalar, addScalarBlock.call<float>("scalar"), 1e-6f);
+    setAndTestValue(addScalarBlock, scalar);
 
     VOLKTests::testOneToOneBlock<float,float>(
         addScalarBlock,
@@ -276,10 +287,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_and)
                                         testInputs0[1] & testInputs1[1],
                                         testInputs0[2] & testInputs1[2]};
 
-    auto andBlock = Pothos::BlockRegistry::make("/volk/and");
-
     VOLKTests::testTwoToOneBlock<int,int,int,size_t>(
-        andBlock,
+        Pothos::BlockRegistry::make("/volk/and"),
         testInputs0,
         testInputs1,
         expectedOutputs,
@@ -293,15 +302,10 @@ POTHOS_TEST_BLOCK("/volk/tests", test_and)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_asin)
 {
-    std::vector<float> testInputs      = {0.0f, 0.5f, 1.0f};
-    std::vector<float> expectedOutputs = {0.0f, M_PI/6.0f, M_PI_2};
-
-    auto asin = Pothos::BlockRegistry::make("/volk/asin");
-
     VOLKTests::testOneToOneBlock<float,float>(
-        asin,
-        testInputs,
-        expectedOutputs);
+        Pothos::BlockRegistry::make("/volk/asin"),
+        {0.0f, 0.5f,      1.0f},
+        {0.0f, M_PI/6.0f, M_PI_2});
 }
 
 //
@@ -310,15 +314,10 @@ POTHOS_TEST_BLOCK("/volk/tests", test_asin)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_atan)
 {
-    std::vector<float> testInputs      = {0.0f, 1.0f, INFINITY};
-    std::vector<float> expectedOutputs = {0.0f, M_PI/4.0f, M_PI_2};
-
-    auto atan = Pothos::BlockRegistry::make("/volk/atan");
-
     VOLKTests::testOneToOneBlock<float,float>(
-        atan,
-        testInputs,
-        expectedOutputs);
+        Pothos::BlockRegistry::make("/volk/atan"),
+        {0.0f, 1.0f,      std::numeric_limits<float>::infinity()},
+        {0.0f, M_PI/4.0f, M_PI_2});
 }
 
 //
@@ -329,9 +328,10 @@ POTHOS_TEST_BLOCK("/volk/tests", test_atan2)
 {
     constexpr float normalizationFactor = 5.0f;
 
-    const std::vector<std::complex<float>> testInputs{
-        {0.5f,1.0f},{1.5f,2.0f},{2.5f,3.0f},
-        {3.5f,4.0f},{4.5f,5.0f},{5.5f,6.0f}
+    const std::vector<std::complex<float>> testInputs =
+    {
+        {0.5f,1.0f}, {1.5f,2.0f}, {2.5f,3.0f},
+        {3.5f,4.0f}, {4.5f,5.0f}, {5.5f,6.0f}
     };
     std::vector<float> expectedOutputs;
 
@@ -339,14 +339,17 @@ POTHOS_TEST_BLOCK("/volk/tests", test_atan2)
         testInputs.begin(),
         testInputs.end(),
         std::back_inserter(expectedOutputs),
-        [normalizationFactor](const std::complex<float>& input)
+        [](const std::complex<float>& input)
         {
             return std::atan2(input.imag(), input.real()) / normalizationFactor;
         });
 
     auto atan2 = Pothos::BlockRegistry::make("/volk/atan2");
-    atan2.call("setNormalizationFactor", normalizationFactor);
-    POTHOS_TEST_EQUAL(normalizationFactor, atan2.call<float>("normalizationFactor"));
+    setAndTestValue(
+        atan2,
+        normalizationFactor,
+        "normalizationFactor",
+        "setNormalizationFactor");
 
     VOLKTests::testOneToOneBlock<std::complex<float>,float>(
         atan2,
@@ -360,15 +363,10 @@ POTHOS_TEST_BLOCK("/volk/tests", test_atan2)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_binary_slicer)
 {
-    std::vector<float> inputs           = {-10.0f, -5.0f, 0.0f, 5.0f, 10.0f};
-    std::vector<int8_t> expectedOutputs = {0, 0, 1, 1, 1};
-
-    auto binarySlicerBlock = Pothos::BlockRegistry::make("/volk/binary_slicer");
-
     VOLKTests::testOneToOneBlock<float,int8_t>(
-        binarySlicerBlock,
-        inputs,
-        expectedOutputs);
+        Pothos::BlockRegistry::make("/volk/binary_slicer"),
+        {-10.0f, -5.0f, 0.0f, 5.0f, 1.0f},
+        {0,      0,     1,    1,    1});
 }
 
 //
@@ -380,14 +378,10 @@ static void testByteswap(
     const std::vector<T>& inputs,
     const std::vector<T>& expectedOutputs)
 {
-    const auto dtype = Pothos::DType(typeid(T));
-
-    auto byteswapBlock = Pothos::BlockRegistry::make(
-        "/volk/byteswap",
-        dtype);
-
     VOLKTests::testOneToOneBlock<T,T>(
-        byteswapBlock,
+        Pothos::BlockRegistry::make(
+            "/volk/byteswap",
+            Pothos::DType(typeid(T))),
         inputs,
         expectedOutputs);
 }
@@ -395,14 +389,14 @@ static void testByteswap(
 POTHOS_TEST_BLOCK("/volk/tests", test_byteswap)
 {
     testByteswap<uint16_t>(
-        {0x0102,0x0304,0x0506},
-        {0x0201,0x0403,0x0605});
+        {0x0102, 0x0304, 0x0506},
+        {0x0201, 0x0403, 0x0605});
     testByteswap<uint32_t>(
-        {0x01020304,0x03040506,0x05060708},
-        {0x04030201,0x06050403,0x08070605});
+        {0x01020304, 0x03040506, 0x05060708},
+        {0x04030201, 0x06050403, 0x08070605});
     testByteswap<uint64_t>(
-        {0x0102030405060708,0x030405060708090A,0x05060708090A0B0C},
-        {0x0807060504030201,0x0A09080706050403,0x0C0B0A0908070605});
+        {0x0102030405060708, 0x030405060708090A, 0x05060708090A0B0C},
+        {0x0807060504030201, 0x0A09080706050403, 0x0C0B0A0908070605});
 }
 
 //
@@ -414,17 +408,16 @@ POTHOS_TEST_BLOCK("/volk/tests", test_calc_spectral_noise_floor)
     constexpr float spectralExclusionValue = 5.0f;
 
     auto calcSpectralNoiseFloorBlock = Pothos::BlockRegistry::make("/volk/calc_spectral_noise_floor");
-    calcSpectralNoiseFloorBlock.call(
-        "setSpectralExclusionValue",
-        spectralExclusionValue);
-    POTHOS_TEST_EQUAL(
+    setAndTestValue(
+        calcSpectralNoiseFloorBlock,
         spectralExclusionValue,
-        calcSpectralNoiseFloorBlock.call<float>("spectralExclusionValue"));
+        "spectralExclusionValue",
+        "setSpectralExclusionValue");
 
     // Just make sure the block executes
     VOLKTests::testOneToOneBlock<float,float>(
         calcSpectralNoiseFloorBlock,
-        {0,1,2,3,4,5,6,7,8,9,10},
+        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
         {},
         false /*lax*/,
         false /*testOutputs*/);
@@ -436,12 +429,10 @@ POTHOS_TEST_BLOCK("/volk/tests", test_calc_spectral_noise_floor)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_conjugate)
 {
-    auto conjugateBlock = Pothos::BlockRegistry::make("/volk/conjugate");
-
     VOLKTests::testOneToOneBlock<std::complex<float>,std::complex<float>>(
-        conjugateBlock,
-        {{0.0f,1.0f},{2.0f,3.0f},{4.0f,5.0f}},
-        {{0.0f,-1.0f},{2.0f,-3.0f},{4.0f,-5.0f}});
+        Pothos::BlockRegistry::make("/volk/conjugate"),
+        {{0.0f,1.0f},  {2.0f,3.0f},  {4.0f,5.0f}},
+        {{0.0f,-1.0f}, {2.0f,-3.0f}, {4.0f,-5.0f}});
 }
 
 //
@@ -460,13 +451,11 @@ static void testConvert(
               << " -> " << outDType.name()
               << "..." << std::endl;
 
-    auto convertBlock = Pothos::BlockRegistry::make(
-        "/volk/convert",
-        inDType,
-        outDType);
-
     VOLKTests::testOneToOneBlock<InType,OutType>(
-        convertBlock,
+        Pothos::BlockRegistry::make(
+            "/volk/convert",
+            inDType,
+            outDType),
         inputs,
         expectedOutputs);
 }
@@ -503,11 +492,7 @@ static void testConvertScaled(
         "/volk/convert_scaled",
         inDType,
         outDType);
-    convertScaledBlock.call("setScalar", scalar);
-    POTHOS_TEST_CLOSE(
-        scalar,
-        convertScaledBlock.call<float>("scalar"),
-        1e-6f);
+    setAndTestValue(convertScaledBlock, scalar);
 
     VOLKTests::testOneToOneBlock<InType,OutType>(
         convertScaledBlock,
@@ -549,10 +534,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_convert_scaled)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_cos)
 {
-    auto cosBlock = Pothos::BlockRegistry::make("/volk/cos");
-
     VOLKTests::testOneToOneBlock<float,float>(
-        cosBlock,
+        Pothos::BlockRegistry::make("/volk/cos"),
         {0.0f, M_PI_2, M_PI},
         {1.0f, 0.0f, -1.0f});
 }
@@ -574,13 +557,11 @@ static void testDeinterleave(
               << " -> " << outDType.name()
               << "..." << std::endl;
 
-    auto deinterleaveBlock = Pothos::BlockRegistry::make(
-        "/volk/deinterleave",
-        inDType,
-        outDType);
-
     VOLKTests::testOneToTwoBlock<InType,OutType,OutType,std::string>(
-        deinterleaveBlock,
+        Pothos::BlockRegistry::make(
+            "/volk/deinterleave",
+            inDType,
+            outDType),
         inputs,
         expectedOutputs0,
         expectedOutputs1,
@@ -617,10 +598,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_deinterleave)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_deinterleave_imag)
 {
-    auto deinterleaveImagBlock = Pothos::BlockRegistry::make("/volk/deinterleave_imag");
-
     VOLKTests::testOneToOneBlock<std::complex<float>,float>(
-        deinterleaveImagBlock,
+        Pothos::BlockRegistry::make("/volk/deinterleave_imag"),
         {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}},
         {-1.5f,         0.5f,         2.5f});
 }
@@ -641,13 +620,11 @@ static void testDeinterleaveReal(
               << " -> " << outDType.name()
               << "..." << std::endl;
 
-    auto deinterleaveBlock = Pothos::BlockRegistry::make(
-        "/volk/deinterleave_real",
-        inDType,
-        outDType);
-
     VOLKTests::testOneToOneBlock<InType,OutType>(
-        deinterleaveBlock,
+        Pothos::BlockRegistry::make(
+            "/volk/deinterleave_real",
+            inDType,
+            outDType),
         inputs,
         expectedOutputs);
 }
@@ -700,11 +677,7 @@ static void testDeinterleaveRealScaled(
         "/volk/deinterleave_real_scaled",
         inDType,
         outDType);
-    deinterleaveRealScaledBlock.call("setScalar", scalar);
-    POTHOS_TEST_CLOSE(
-        scalar,
-        deinterleaveRealScaledBlock.call<float>("scalar"),
-        1e-6f);
+    setAndTestValue(deinterleaveRealScaledBlock, scalar);
 
     VOLKTests::testOneToOneBlock<InType,OutType>(
         deinterleaveRealScaledBlock,
@@ -752,11 +725,7 @@ static void testDeinterleaveScaled(
         "/volk/deinterleave_scaled",
         inDType,
         outDType);
-    deinterleaveScaledBlock.call("setScalar", scalar);
-    POTHOS_TEST_CLOSE(
-        scalar,
-        deinterleaveScaledBlock.call<float>("scalar"),
-        1e-6f);
+    setAndTestValue(deinterleaveScaledBlock, scalar);
 
     VOLKTests::testOneToTwoBlock<InType,OutType,OutType,std::string>(
         deinterleaveScaledBlock,
@@ -796,12 +765,8 @@ static void testDivide(
 
     std::cout << "Testing " << dtype.name() << "..." << std::endl;
 
-    auto divideBlock = Pothos::BlockRegistry::make(
-        "/volk/divide",
-        dtype);
-
     VOLKTests::testTwoToOneBlock<T,T,T,size_t>(
-        divideBlock,
+        Pothos::BlockRegistry::make("/volk/divide", dtype),
         inputs0,
         inputs1,
         expectedOutputs,
@@ -849,10 +814,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_exp)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_interleave)
 {
-    auto interleaveBlock = Pothos::BlockRegistry::make("/volk/interleave");
-
     VOLKTests::testTwoToOneBlock<float,float,std::complex<float>,std::string>(
-        interleaveBlock,
+        Pothos::BlockRegistry::make("/volk/interleave"),
         {-2.5f,         -0.5f,        1.5f},
         {-1.5f,         0.5f,         2.5f},
         {{-2.5f,-1.5f}, {-0.5f,0.5f}, {1.5f,2.5f}},
@@ -869,11 +832,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_interleave_scaled)
     constexpr float scalar = 100.0f;
 
     auto interleaveScaledBlock = Pothos::BlockRegistry::make("/volk/interleave_scaled");
-    interleaveScaledBlock.call("setScalar", scalar);
-    POTHOS_TEST_CLOSE(
-        scalar,
-        interleaveScaledBlock.call<float>("scalar"),
-        1e-6f);
+    setAndTestValue(interleaveScaledBlock, scalar);
 
     VOLKTests::testTwoToOneBlock<float,float,std::complex<int16_t>,std::string>(
         interleaveScaledBlock,
@@ -890,10 +849,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_interleave_scaled)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_invsqrt)
 {
-    auto invSqrtBlock = Pothos::BlockRegistry::make("/volk/invsqrt");
-
     VOLKTests::testOneToOneBlock<float,float>(
-        invSqrtBlock,
+        Pothos::BlockRegistry::make("/volk/invsqrt"),
         {0.125f,    0.5f,      2.0f},
         {2.828427f, 1.414213f, 0.707106f});
 }
@@ -904,10 +861,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_invsqrt)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_log2)
 {
-    auto log2Block = Pothos::BlockRegistry::make("/volk/log2");
-
     VOLKTests::testOneToOneBlock<float,float>(
-        log2Block,
+        Pothos::BlockRegistry::make("/volk/log2"),
         {1.0f, 2.0f, 4.0f, 5.0f},
         {0.0f, 1.0f, 2.0f, 2.321928f});
 }
@@ -1007,10 +962,8 @@ static void testMax()
 
     std::cout << "Testing " << dtype.name() << "..." << std::endl;
 
-    auto maxBlock = Pothos::BlockRegistry::make("/volk/max", dtype);
-
     VOLKTests::testTwoToOneBlock<T,T,T,size_t>(
-        maxBlock,
+        Pothos::BlockRegistry::make("/volk/max", dtype),
         {-5.0f, 3.0f,  -1.0f, 1.0f, -3.0f, 5.0f},
         {4.0f,  -2.0f, 0.0f,  2.0f, -4.0f, 6.0f},
         {4.0f,  3.0f,  0.0f,  2.0f, -3.0f, 6.0f},
@@ -1049,10 +1002,8 @@ static void testMin()
 
     std::cout << "Testing " << dtype.name() << "..." << std::endl;
 
-    auto minBlock = Pothos::BlockRegistry::make("/volk/min", dtype);
-
     VOLKTests::testTwoToOneBlock<T,T,T,size_t>(
-        minBlock,
+        Pothos::BlockRegistry::make("/volk/min", dtype),
         {-5.0f, 3.0f,  -1.0f, 1.0f, -3.0f, 5.0f},
         {4.0f,  -2.0f, 0.0f,  2.0f, -4.0f, 6.0f},
         {-5.0f, -2.0f, -1.0f, 1.0f, -4.0f, 5.0f},
@@ -1077,18 +1028,16 @@ POTHOS_TEST_BLOCK("/volk/tests", test_mod_range)
     constexpr float offset = 0.1f;
 
     auto modRangeBlock = Pothos::BlockRegistry::make("/volk/mod_range");
-
-    modRangeBlock.call("setLowerBound", lowerBound);
-    POTHOS_TEST_CLOSE(
+    setAndTestValue(
+        modRangeBlock,
         lowerBound,
-        modRangeBlock.call<float>("lowerBound"),
-        1e-6f);
-
-    modRangeBlock.call("setUpperBound", upperBound);
-    POTHOS_TEST_CLOSE(
+        "lowerBound",
+        "setLowerBound");
+    setAndTestValue(
+        modRangeBlock,
         upperBound,
-        modRangeBlock.call<float>("upperBound"),
-        1e-6f);
+        "upperBound",
+        "setUpperBound");
 
     const std::vector<float> inputs =
     {
@@ -1133,14 +1082,12 @@ static void testMultiply(
                             << inDType1.name() << " -> "
                             << outDType.name() << "..." << std::endl;
 
-    auto multiplyBlock = Pothos::BlockRegistry::make(
-        "/volk/multiply",
-        inDType0,
-        inDType1,
-        outDType);
-
     VOLKTests::testTwoToOneBlock<InType0,InType1,OutType,size_t>(
-        multiplyBlock,
+        Pothos::BlockRegistry::make(
+            "/volk/multiply",
+            inDType0,
+            inDType1,
+            outDType),
         inputs0,
         inputs1,
         expectedOutputs,
@@ -1192,13 +1139,11 @@ static void testMultiplyConjugate(
     std::cout << "Testing " << inDType.name() << " -> "
                             << outDType.name() << "..." << std::endl;
 
-    auto multiplyConjugateBlock = Pothos::BlockRegistry::make(
-        "/volk/multiply_conjugate",
-        inDType,
-        outDType);
-
     VOLKTests::testTwoToOneBlock<InType,InType,OutType,size_t>(
-        multiplyConjugateBlock,
+        Pothos::BlockRegistry::make(
+            "/volk/multiply_conjugate",
+            inDType,
+            outDType),
         inputs0,
         inputs1,
         expectedOutputs,
@@ -1274,11 +1219,11 @@ POTHOS_TEST_BLOCK("/volk/tests", test_multiply_conjugate_scaled)
 
     const std::vector<std::complex<int8_t>> inputs0 =
     {
-        {{0,1},   {2,3},    {4,5},    {6,7},    {8,9}},
+        {{0,1}, {2,3}, {4,5}, {6,7}, {8,9}},
     };
     const std::vector<std::complex<int8_t>> inputs1 =
     {
-        {{-9,-8}, {-7,-6},  {-5,-4},  {-3,-2},  {-1,0}},
+        {{-9,-8}, {-7,-6}, {-5,-4}, {-3,-2}, {-1,0}},
     };
     std::vector<std::complex<float>> expectedOutputs;
     for(size_t i = 0; i < inputs0.size(); ++i)
@@ -1321,9 +1266,7 @@ static void testMultiplyScalar(
     auto multiplyScalarBlock = Pothos::BlockRegistry::make(
         "/volk/multiply_scalar",
         dtype);
-
-    multiplyScalarBlock.call("setScalar", scalar);
-    POTHOS_TEST_EQUAL(scalar, multiplyScalarBlock.call<T>("scalar"));
+    setAndTestValue(multiplyScalarBlock, scalar);
 
     VOLKTests::testOneToOneBlock<T,T>(
         multiplyScalarBlock,
@@ -1339,7 +1282,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_multiply_scalar)
 
     testMultiplyScalar<std::complex<float>>(
         {{0.1f,0.2f}, {0.3f,0.4f}, {0.5f,0.6f}, {0.7f,0.8f}, {0.9f,1.0f}},
-        {0.123f,0.456f});
+        {0.123f, 0.456f});
 }
 
 //
@@ -1351,12 +1294,7 @@ POTHOS_TEST_BLOCK("/volk/tests", test_normalize)
     const float scalar = 10.0f;
 
     auto normalizeBlock = Pothos::BlockRegistry::make("/volk/normalize");
-
-    normalizeBlock.call("setScalar", scalar);
-    POTHOS_TEST_CLOSE(
-        scalar,
-        normalizeBlock.call<float>("scalar"),
-        1e-6f);
+    setAndTestValue(normalizeBlock, scalar);
 
     VOLKTests::testOneToOneBlock<float,float>(
         normalizeBlock,
@@ -1370,16 +1308,14 @@ POTHOS_TEST_BLOCK("/volk/tests", test_normalize)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_or)
 {
-    std::vector<int> testInputs0     = {123,456,789};
-    std::vector<int> testInputs1     = {321,654,987};
+    std::vector<int> testInputs0     = {123, 456, 789};
+    std::vector<int> testInputs1     = {321, 654, 987};
     std::vector<int> expectedOutputs = {testInputs0[0] | testInputs1[0],
                                         testInputs0[1] | testInputs1[1],
                                         testInputs0[2] | testInputs1[2]};
 
-    auto orBlock = Pothos::BlockRegistry::make("/volk/or");
-
     VOLKTests::testTwoToOneBlock<int,int,int,size_t>(
-        orBlock,
+        Pothos::BlockRegistry::make("/volk/or"),
         testInputs0,
         testInputs1,
         expectedOutputs,
@@ -1395,8 +1331,8 @@ POTHOS_TEST_BLOCK("/volk/tests", test_popcnt)
 {
     VOLKTests::testOneToOneBlock<uint64_t,uint64_t>(
         Pothos::BlockRegistry::make("/volk/popcnt"),
-        {0,0b101010101010101,std::numeric_limits<uint64_t>::max()},
-        {0,8,64});
+        {0, 0b101010101010101, std::numeric_limits<uint64_t>::max()},
+        {0, 8,                 64});
 }
 
 //
@@ -1424,8 +1360,11 @@ POTHOS_TEST_BLOCK("/volk/tests", test_power)
     constexpr float power = 2.0f;
 
     auto powerBlock = Pothos::BlockRegistry::make("/volk/power");
-    powerBlock.call("setPower", power);
-    POTHOS_TEST_CLOSE(power, powerBlock.call<float>("power"), 1e-6f);
+    setAndTestValue(
+        powerBlock,
+        power,
+        "power",
+        "setPower");
 
     VOLKTests::testOneToOneBlock<float,float>(
         powerBlock,
@@ -1481,14 +1420,15 @@ POTHOS_TEST_BLOCK("/volk/tests", test_sin)
 
 POTHOS_TEST_BLOCK("/volk/tests", test_square_dist)
 {
-    auto squareDist = Pothos::BlockRegistry::make("/volk/square_dist");
-    POTHOS_TEST_CLOSE(1.0f, squareDist.call<float>("scalar"), 1e-6f);
+    auto squareDistBlock = Pothos::BlockRegistry::make("/volk/square_dist");
+    POTHOS_TEST_CLOSE(1.0f, squareDistBlock.call<float>("scalar"), 1e-6f);
 
     const std::complex<float> complexInput{0.5f, 2.0f};
-    squareDist.call("setComplexInput", complexInput);
-    POTHOS_TEST_EQUAL(
+    setAndTestValue(
+        squareDistBlock,
         complexInput,
-        squareDist.call<std::complex<float>>("complexInput"));
+        "complexInput",
+        "setComplexInput");
 
     constexpr size_t N = 16;
     std::vector<std::complex<float>> inputs(N);
@@ -1511,20 +1451,18 @@ POTHOS_TEST_BLOCK("/volk/tests", test_square_dist)
     std::cout << " * Testing with no scaling..." << std::endl;
 
     VOLKTests::testOneToOneBlock<std::complex<float>,float>(
-        squareDist,
+        squareDistBlock,
         inputs,
         expectedOutputs);
 
     std::cout << " * Testing with scaling..." << std::endl;
 
     constexpr float scalar = 10.0f;
+    setAndTestValue(squareDistBlock, scalar);
     for(auto& expectedOutput: expectedOutputs) expectedOutput *= scalar;
 
-    squareDist.call("setScalar", scalar);
-    POTHOS_TEST_CLOSE(scalar, squareDist.call<float>("scalar"), 1e-6f);
-
     VOLKTests::testOneToOneBlock<std::complex<float>,float>(
-        squareDist,
+        squareDistBlock,
         inputs,
         expectedOutputs);
 }

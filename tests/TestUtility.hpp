@@ -32,6 +32,15 @@ namespace VOLKTests
     using DisableIfComplex = typename std::enable_if<!IsComplex<T>::value, Ret>::type;
 
     template <typename T>
+    static constexpr T epsilon() {return T(0);}
+
+    template <>
+    constexpr float epsilon<float>() {return 1e-6f;}
+
+    template <>
+    constexpr double epsilon<double>() {return 1e-6;}
+
+    template <typename T>
     static Pothos::BufferChunk stdVectorToBufferChunk(const std::vector<T>& inputs)
     {
         Pothos::BufferChunk ret(Pothos::DType(typeid(T)), inputs.size());
@@ -68,6 +77,31 @@ namespace VOLKTests
         size_t numRepetitions)
     {
         return stdVectorToBufferChunk<T>(stretchStdVector<T>(inputs, numRepetitions));
+    }
+
+    template <typename T>
+    static EnableIfIntegral<T, void> testValuesEqual(
+        const T& expected,
+        const T& actual)
+    {
+        POTHOS_TEST_EQUAL(expected, actual);
+    }
+
+    template <typename T>
+    static DisableIfIntegral<T, void> testValuesEqual(
+        const T& expected,
+        const T& actual)
+    {
+        POTHOS_TEST_CLOSE(expected, actual, epsilon<T>());
+    }
+
+    template <typename T>
+    static EnableIfComplex<T, void> testValuesEqual(
+        const T& expected,
+        const T& actual)
+    {
+        testValuesEqual(expected.real(), actual.real());
+        testValuesEqual(expected.imag(), actual.imag());
     }
 
     template <typename T>

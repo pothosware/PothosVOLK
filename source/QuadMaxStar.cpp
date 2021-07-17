@@ -33,13 +33,11 @@ Pothos::Block* QuadMaxStar::make()
 
 QuadMaxStar::QuadMaxStar(): VOLKBlock()
 {
-    static const Pothos::DType DType(typeid(int16_t));
-
-    this->setupInput(0, DType);
-    this->setupInput(1, DType);
-    this->setupInput(2, DType);
-    this->setupInput(3, DType);
-    this->setupOutput(0, DType);
+    this->setupInput(0, "int16");
+    this->setupInput(1, "int16");
+    this->setupInput(2, "int16");
+    this->setupInput(3, "int16");
+    this->setupOutput(0, "int16");
 }
 
 void QuadMaxStar::work()

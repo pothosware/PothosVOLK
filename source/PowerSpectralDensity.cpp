@@ -58,11 +58,8 @@ PowerSpectralDensity::PowerSpectralDensity():
     _normalizationFactor(1.0f),
     _rbw(1.0f)
 {
-    static const Pothos::DType InDType(typeid(std::complex<float>));
-    static const Pothos::DType OutDType(typeid(float));
-
-    this->setupInput(0, InDType);
-    this->setupOutput(0, OutDType);
+    this->setupInput(0, "complex_float32");
+    this->setupOutput(0, "float32");
 
     this->registerCall(this, POTHOS_FCN_TUPLE(PowerSpectralDensity, normalizationFactor));
     this->registerCall(this, POTHOS_FCN_TUPLE(PowerSpectralDensity, setNormalizationFactor));

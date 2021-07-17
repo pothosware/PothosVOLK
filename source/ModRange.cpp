@@ -60,10 +60,8 @@ ModRange::ModRange():
     _lowerBound(0),
     _upperBound(0)
 {
-    static const Pothos::DType DType(typeid(float));
-
-    this->setupInput(0, DType);
-    this->setupOutput(0, DType);
+    this->setupInput(0, "float");
+    this->setupOutput(0, "float");
 
     this->registerCall(this, POTHOS_FCN_TUPLE(ModRange, lowerBound));
     this->registerCall(this, POTHOS_FCN_TUPLE(ModRange, setLowerBound));
