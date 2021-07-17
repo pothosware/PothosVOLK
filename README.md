@@ -13,7 +13,7 @@ vary significantly.
 ## Dependencies
 
 * Pothos library (0.7+)
-* VOLK
+* VOLK (2.0+)
 
 ## Licensing information
 
