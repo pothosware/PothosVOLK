@@ -1,4 +1,4 @@
-// Copyright 2021 Nicholas Corgan
+// Copyright 2021,2023 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "VOLKBlock.hpp"
@@ -148,8 +148,8 @@ void SquareDist::_workScalar()
  * <li><b>volk_32fc_x2_s32f_square_dist_scalar_mult_32f</b></li>
  * </ul>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math complex
  *
  * |param complexInput[Complex Input]

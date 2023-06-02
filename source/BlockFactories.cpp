@@ -1,4 +1,4 @@
-// Copyright 2021 Nicholas Corgan
+// Copyright 2021,2023 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "Fallback.hpp"
@@ -64,8 +64,8 @@
  * Underlying function: <b>volk_32f_acos_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/acos()
@@ -90,8 +90,8 @@ static Pothos::BlockRegistry registerVOLKACos(
  * <li><b>volk_32fc_x2_add_32fc</b></li>
  * </ul>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math plus
  *
  * |param input0DType[Data Type In0]
@@ -148,8 +148,8 @@ static Pothos::BlockRegistry registerVOLKAdd(
  * Underlying function: <b>volk_32f_s32f_add_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math plus constant
  *
  * |param scalar[Scalar] A constant value added to all inputs.
@@ -174,8 +174,8 @@ static Pothos::BlockRegistry registerVOLKAddScalar(
  * Underlying function: <b>volk_32i_x2_and_32i</b>
  * </p>
  *
- * |category /Digital
- * |category /VOLK
+ * |category /Digital/VOLK
+ * |category /VOLK/Digital
  *
  * |factory /volk/and()
  **********************************************************************/
@@ -193,8 +193,8 @@ static Pothos::BlockRegistry registerVOLKAnd(
  * Underlying function: <b>volk_32f_asin_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/asin()
@@ -211,8 +211,8 @@ static Pothos::BlockRegistry registerVOLKASin(
  * Underlying function: <b>volk_32f_atan_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/atan()
@@ -233,8 +233,8 @@ static Pothos::BlockRegistry registerVOLKATan(
  * Underlying function: <b>volk_32fc_s32f_atan2_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |param normalizationFactor[Normalization Factor]
@@ -265,8 +265,8 @@ static Pothos::BlockRegistry registerVOLKATan2(
  * Underlying function: <b>volk_32f_binary_slicer_8i</b>
  * </p>
  *
- * |category /Stream
- * |category /VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  * |keywords positive negative
  *
  * |factory /volk/binary_slicer()
@@ -327,8 +327,8 @@ static Pothos::BlockRegistry registerVOLKCalcSpectralNoiseFloor(
  * Underlying function: <b>volk_32fc_conjugate_32fc</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  *
  * |factory /volk/conjugate()
  **********************************************************************/
@@ -386,8 +386,8 @@ static Pothos::BlockRegistry registerVOLKConjugate(
  *   </li>
  * </ul>
  *
- * |category /Convert
- * |category /VOLK
+ * |category /Convert/VOLK
+ * |category /VOLK/Convert
  * |keywords type
  *
  * |param inputDType[Data Type In]
@@ -485,8 +485,8 @@ static Pothos::BlockRegistry registerVOLKConvert(
  *   </li>
  * </ul>
  *
- * |category /Convert
- * |category /VOLK
+ * |category /Convert/VOLK
+ * |category /VOLK/Convert
  * |keywords type
  *
  * |param inputDType[Data Type In]
@@ -544,8 +544,8 @@ static Pothos::BlockRegistry registerVOLKConvertScaled(
  * Underlying function: <b>volk_32f_cos_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/cos()
@@ -595,9 +595,9 @@ static Pothos::BlockRegistry registerVOLKCos(
  *   </li>
  * </ul>
  *
- * |category /Convert
- * |category /Stream
- * |category /VOLK
+ * |category /Convert/VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  * |keywords complex real imag
  *
  * |param inputDType[Data Type In]
@@ -647,9 +647,9 @@ static Pothos::BlockRegistry registerVOLKDeinterleave(
  * Underlying function: <b>volk_32fc_deinterleave_imag_32f</b>
  * </p>
  *
- * |category /Convert
- * |category /Stream
- * |category /VOLK
+ * |category /Convert/VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  * |keywords math trig
  *
  * |factory /volk/deinterleave_imag()
@@ -712,9 +712,9 @@ static Pothos::BlockRegistry registerVOLKDeinterleaveImag(
  *   </li>
  * </ul>
  *
- * |category /Convert
- * |category /Stream
- * |category /VOLK
+ * |category /Convert/VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  * |keywords complex
  *
  * |param inputDType[Data Type In]
@@ -790,8 +790,8 @@ static Pothos::BlockRegistry registerVOLKDeinterleaveReal(
  *   </li>
  * </ul>
  *
- * |category /Convert
- * |category /VOLK
+ * |category /Convert/VOLK
+ * |category /VOLK/Convert
  * |keywords type
  *
  * |param inputDType[Data Type In]
@@ -867,9 +867,9 @@ static Pothos::BlockRegistry registerVOLKDeinterleaveRealScaled(
  *   </li>
  * </ul>
  *
- * |category /Convert
- * |category /Stream
- * |category /VOLK
+ * |category /Convert/VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  * |keywords complex real imag
  *
  * |param inputDType[Data Type In]
@@ -930,8 +930,8 @@ static Pothos::BlockRegistry registerVOLKDeinterleaveScaled(
  * <li><b>volk_32fc_x2_divide_32fc</b></li>
  * </ul>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math
  *
  * |param dtype[Data Type]
@@ -974,8 +974,8 @@ static Pothos::BlockRegistry registerVOLKDivide(
  *   <li>Precise: <b>volk_32f_exp_32f</b></li>
  * </ul>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math
  *
  * |param mode[Mode]
@@ -1015,9 +1015,9 @@ static Pothos::BlockRegistry registerVOLKExp(
  * Underlying function: <b>volk_32f_x2_interleave_32fc</b>
  * </p>
  *
- * |category /Stream
- * |category /Convert
- * |category /VOLK
+ * |category /Stream/VOLK
+ * |category /Convert/VOLK
+ * |category /VOLK/Stream
  * |keywords math trig
  *
  * |factory /volk/interleave()
@@ -1041,9 +1041,9 @@ static Pothos::BlockRegistry registerVOLKInterleave(
  * Underlying function: <b>volk_32f_x2_s32f_interleave_16ic</b>
  * </p>
  *
- * |category /Convert
- * |category /Stream
- * |category /VOLK
+ * |category /Convert/VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  * |keywords complex real imag
  *
  * |param scalar[Scalar] A scalar to apply to each input post-conversion.
@@ -1070,8 +1070,8 @@ static Pothos::BlockRegistry registerVOLKInterleaveScaled(
  * Underlying function: <b>volk_32f_invsqrt_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/invsqrt()
@@ -1088,8 +1088,8 @@ static Pothos::BlockRegistry registerVOLKInvSqrt(
  * Underlying function: <b>volk_32f_log2_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/log2()
@@ -1111,8 +1111,8 @@ static Pothos::BlockRegistry registerVOLKLog2(
  * <li><b>volk_32fc_magnitude_32f</b></li>
  * </ul>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math complex
  *
  * |param dtype[Data Type]
@@ -1148,8 +1148,8 @@ static Pothos::BlockRegistry registerVOLKMagnitude(
  * Underlying function: <b>volk_32f_magnitude_squared_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math complex
  *
  * |factory /volk/magnitude_squared()
@@ -1171,8 +1171,8 @@ static Pothos::BlockRegistry registerVOLKMagnitudeSquared(
  * <li><b>volk_64f_x2_max_64f</b></li>
  * </ul>
  *
- * |category /Stream
- * |category /VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  *
  * |param dtype[Data Type]
  * |widget DTypeChooser(float=1)
@@ -1235,8 +1235,8 @@ static Pothos::BlockRegistry registerVOLKMaxStarPath(
  * <li><b>volk_64f_x2_min_64f</b></li>
  * </ul>
  *
- * |category /Stream
- * |category /VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  *
  * |param dtype[Data Type]
  * |widget DTypeChooser(float=1)
@@ -1277,8 +1277,8 @@ static Pothos::BlockRegistry registerVOLKMin(
  * <li><b>volk_32fc_32f_multiply_32fc</b></li>
  * </ul>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math
  *
  * |param input0DType[Data Type In0]
@@ -1341,8 +1341,8 @@ static Pothos::BlockRegistry registerVOLKMultiply(
  * <li><b>volk_32fc_x2_multiply_conjugate_32fc</b></li>
  * </ul>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math complex
  *
  * |param inputDType[Data Type In]
@@ -1392,8 +1392,8 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugate(
  * Underlying function: <b>volk_32fc_x2_s32fc_multiply_conjugate_add_32fc</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords complex real imag
  *
  * |param scalar[Complex Scalar]
@@ -1426,8 +1426,8 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugateAdd(
  * Underlying function: <b>volk_8ic_x2_s32f_multiply_conjugate_32fc</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math complex
  *
  * |param scalar[Scalar]
@@ -1464,8 +1464,8 @@ static Pothos::BlockRegistry registerVOLKMultiplyConjugateScaled(
  * <li><b>volk_32fc_s32fc_multiply_32fc</b></li>
  * </ul>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math constant
  *
  * |param dtype[Data Type]
@@ -1508,8 +1508,8 @@ static Pothos::BlockRegistry registerVOLKMultiplyScalar(
  * Underlying function: <b>volk_32i_x2_or_32i</b>
  * </p>
  *
- * |category /Digital
- * |category /VOLK
+ * |category /Digital/VOLK
+ * |category /VOLK/Digital
  *
  * |factory /volk/or()
  **********************************************************************/
@@ -1532,8 +1532,8 @@ static Pothos::BlockRegistry registerVOLKOr(
  * Underlying function: <b>volk_32f_x2_pow_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  *
  * |factory /volk/pow()
  **********************************************************************/
@@ -1555,8 +1555,8 @@ static Pothos::BlockRegistry registerVOLKPow(
  * Underlying function: <b>volk_32f_s32f_power_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords exponent
  *
  * |param power[Power] A scalar exponent to apply to all elements.
@@ -1585,8 +1585,8 @@ static Pothos::BlockRegistry registerVOLKPower(
  * Underlying function: <b>volk_32fc_s32f_power_spectrum_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math rf
  *
  * |param normalizationFactor[Normalization Factor]
@@ -1616,8 +1616,8 @@ static Pothos::BlockRegistry registerVOLKPowerSpectrum(
  * Underlying function: <b>volk_32u_reverse_32u</b>
  * </p>
  *
- * |category /Digital
- * |category /VOLK
+ * |category /Digital/VOLK
+ * |category /VOLK/Digital
  *
  * |factory /volk/reverse()
  **********************************************************************/
@@ -1633,8 +1633,8 @@ static Pothos::BlockRegistry registerVOLKReverse(
  * Underlying function: <b>volk_32f_sin_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/sin()
@@ -1651,8 +1651,8 @@ static Pothos::BlockRegistry registerVOLKSin(
  * Underlying function: <b>volk_32f_sqrt_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/sqrt()
@@ -1669,8 +1669,8 @@ static Pothos::BlockRegistry registerVOLKSqrt(
  * Underlying function: <b>volk_32f_x2_subtract_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math minus
  *
  * |factory /volk/subtract()
@@ -1689,8 +1689,8 @@ static Pothos::BlockRegistry registerVOLKSubtract(
  * Underlying function: <b>volk_32f_tan_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/tan()
@@ -1711,8 +1711,8 @@ static Pothos::BlockRegistry registerVOLKTan(
  * Underlying function: <b>volk_32f_tanh_32f</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords math trig
  *
  * |factory /volk/tanh()

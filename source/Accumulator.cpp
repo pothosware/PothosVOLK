@@ -1,4 +1,4 @@
-// Copyright 2021 Nicholas Corgan
+// Copyright 2021,2023 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "Fallback.hpp"
@@ -89,8 +89,8 @@ class Accumulator: public VOLKBlock
  * <li><b>volk_32fc_accumulator_32fc</b></li>
  * </ul>
  *
- * |category /Stream
- * |category /VOLK
+ * |category /Stream/Stream
+ * |category /VOLK/Stream
  *
  * |param dtype[Data Type]
  * |widget DTypeChooser(float32=1,cfloat32=1)

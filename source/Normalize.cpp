@@ -1,4 +1,4 @@
-// Copyright 2021 Nicholas Corgan
+// Copyright 2021,2023 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "Utility.hpp"
@@ -85,8 +85,8 @@ void Normalize::work()
  * Underlying function: <b>volk_32f_s32f_normalize</b>
  * </p>
  *
- * |category /Math
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /VOLK/Math
  * |keywords divide
  *
  * |param scalar[Scalar]

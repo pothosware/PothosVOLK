@@ -1,4 +1,4 @@
-// Copyright 2021 Nicholas Corgan
+// Copyright 2021,2023 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "VOLKBlock.hpp"
@@ -100,8 +100,8 @@ void ModRange::work()
  * Underlying function: <b>volk_32f_s32f_s32f_mod_range_32f</b>
  * </p>
  *
- * |category /Stream
- * |category /VOLK
+ * |category /Stream/VOLK
+ * |category /VOLK/Stream
  * |keywords clamp bound wrap
  *
  * |param lowerBound[Lower Bound]

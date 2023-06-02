@@ -1,4 +1,4 @@
-// Copyright 2021 Nicholas Corgan
+// Copyright 2021,2023 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "VOLKBlock.hpp"
@@ -68,8 +68,8 @@ void PopCnt::work()
  * Underlying function: <b>volk_64u_popcnt</b>
  * </p>
  *
- * |category /Digital
- * |category /VOLK
+ * |category /Digital/VOLK
+ * |category /VOLK/Digital
  * |keywords bit population hamming distance
  *
  * |factory /volk/popcnt()

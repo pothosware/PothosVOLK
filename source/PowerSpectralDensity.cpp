@@ -1,4 +1,4 @@
-// Copyright 2021 Nicholas Corgan
+// Copyright 2021,2023 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "VOLKBlock.hpp"
@@ -99,9 +99,9 @@ void PowerSpectralDensity::work()
  * Underlying function: <b>volk_32fc_s32f_x2_power_spectral_density_32f</b>
  * </p>
  *
- * |category /Math
- * |category /FFT
- * |category /VOLK
+ * |category /Math/VOLK
+ * |category /FFT/VOLK
+ * |category /VOLK/Math
  * |keywords math rf
  *
  * |param normalizationFactor[Normalization Factor]

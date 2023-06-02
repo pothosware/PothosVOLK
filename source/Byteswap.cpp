@@ -1,4 +1,4 @@
-// Copyright 2021 Nicholas Corgan
+// Copyright 2021,2023 Nicholas Corgan
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "Utility.hpp"
@@ -59,8 +59,8 @@ class Byteswap: public VOLKBlock
  * <li><b>volk_64u_byteswap</b></li>
  * </ul>
  *
- * |category /Digital
- * |category /VOLK
+ * |category /Digital/VOLK
+ * |category /VOLK/Digital
  * |keywords order endian
  *
  * |param dtype[Data Type]
