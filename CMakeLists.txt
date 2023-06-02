@@ -98,3 +98,20 @@ CheckSymbolAndSetDefine(
     "volk_32fc_x2_s32fc_multiply_conjugate_add_32fc"
     "volk/volk.h"
     HAVE_32FC_X2_S32FC_MULTIPLY_CONJUGATE_ADD)
+
+########################################################################
+# Search for VOLK kernels deprecated at some point so we know to
+# compile in fallback versions if needed.
+########################################################################
+CheckSymbolAndSetDefine(
+    "volk_16i_max_star_16i"
+    "volk/volk.h"
+    HAVE_16I_MAX_STAR)
+CheckSymbolAndSetDefine(
+    "volk_16i_x4_quad_max_star_16i"
+    "volk/volk.h"
+    HAVE_16I_X4_QUAD_MAX_STAR)
+CheckSymbolAndSetDefine(
+    "volk_16i_x5_add_quad_16i_x4"
+    "volk/volk.h"
+    HAVE_16I_X5_ADD_QUAD)
